@@ -6,8 +6,17 @@ export default function Footer() {
     <footer className="mt-16 bg-[var(--red-dark)] py-10 text-[var(--gold-light)]">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 sm:grid-cols-3">
         <div>
-          <p className="text-xl font-bold text-[var(--gold)]">{site.name}</p>
-          <p className="mt-2">Sâm Báo Vĩnh Lộc – &quot;Đệ nhất danh sâm nước Nam&quot;</p>
+          <div className="flex items-center gap-3">
+            <img
+              src="/images/logo.png"
+              alt="Thanh Hoàng Sâm Logo"
+              className="h-12 w-12 rounded-full border border-[var(--gold)]/50 shadow-md object-contain"
+            />
+            <p className="font-heading text-2xl font-black text-[var(--gold)] uppercase tracking-wider">
+              {site.name}
+            </p>
+          </div>
+          <p className="mt-3">Sâm Báo Vĩnh Lộc – &quot;Đệ nhất danh sâm nước Nam&quot;</p>
           <p className="mt-3 text-sm leading-relaxed opacity-90">{site.disclaimer}</p>
         </div>
         <div>

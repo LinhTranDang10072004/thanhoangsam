@@ -1,4 +1,12 @@
 import localFont from "next/font/local";
+import { Playfair_Display } from "next/font/google";
+
+export const playfair = Playfair_Display({
+  subsets: ["vietnamese", "latin"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-heading",
+  display: "swap",
+});
 
 export const beVietnamLatin = localFont({
   src: [

@@ -78,8 +78,17 @@ button:disabled {
   box-shadow: none;
 }
 
+h1, h2, h3, h4, .section-title, .font-heading {
+  font-family: var(--font-heading), "Playfair Display", "Times New Roman", Georgia, serif;
+  letter-spacing: 0.02em;
+}
+
+.font-heading {
+  font-family: var(--font-heading), "Playfair Display", "Times New Roman", Georgia, serif;
+}
+
 .section-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 800;
   color: var(--red);
   text-align: center;

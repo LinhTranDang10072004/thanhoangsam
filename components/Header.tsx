@@ -38,8 +38,20 @@ export default function Header() {
       </div>
       <div className="bg-[var(--red)]/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className="text-xl font-extrabold tracking-wide text-[var(--gold)] sm:text-2xl">
-            Thanh Hoàng <span className="text-white">Sâm</span>
+          <Link href="/" className="flex items-center gap-3 transition hover:opacity-95">
+            <img
+              src="/images/logo.png"
+              alt="Thanh Hoàng Sâm Logo"
+              className="h-10 w-10 sm:h-12 sm:w-12 rounded-full border border-[var(--gold)]/60 shadow-[0_0_12px_rgba(212,160,23,0.5)] object-contain"
+            />
+            <div className="flex flex-col">
+              <span className="font-heading text-lg sm:text-2xl font-black tracking-wider text-[var(--gold)] uppercase leading-tight drop-shadow-sm">
+                THANH HOÀNG <span className="text-white">SÂM</span>
+              </span>
+              <span className="text-[10px] font-semibold tracking-widest text-[var(--gold-light)] uppercase hidden sm:block">
+                Đại Việt Đệ Nhất Danh Sâm
+              </span>
+            </div>
           </Link>
           <nav className="hidden items-center gap-5 lg:flex" aria-label="Chính">
             {nav.map((item) => (
