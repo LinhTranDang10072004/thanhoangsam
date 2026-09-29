@@ -22,8 +22,8 @@ export default function Home() {
             <div className="gold-line" />
           </Reveal>
           <div className="grid gap-6 sm:grid-cols-2">
-            {products.map((product, index) => (
-              <Reveal key={product.slug} delay={index * 0.08}>
+            {products.map((product) => (
+              <Reveal key={product.slug}>
                 <ProductCard p={product} />
               </Reveal>
             ))}

@@ -29,7 +29,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="vi"
-      data-scroll-behavior="smooth"
       className={`${beVietnamLatin.variable} ${beVietnamViet.variable} ${playfair.variable}`}
     >
       <body className="flex min-h-screen flex-col">

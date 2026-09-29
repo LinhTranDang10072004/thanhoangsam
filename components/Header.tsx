@@ -40,7 +40,7 @@ export default function Header() {
       </div>
       <div className="bg-[var(--red)]/80">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
-          <Link href="/" className="flex items-center gap-3 transition hover:opacity-95">
+          <Link href="/" prefetch={true} className="flex items-center gap-3 transition hover:opacity-95">
             <img
               src="/images/logo.png"
               alt="Thanh Hoàng Sâm Logo"
@@ -60,6 +60,7 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 aria-current={ready && isCurrent(path, item.href) ? "page" : undefined}
                 className={`font-semibold transition hover:text-[var(--gold)] ${
                   ready && isCurrent(path, item.href) ? "text-[var(--gold)]" : "text-white"
@@ -81,7 +82,7 @@ export default function Header() {
               <span className="hidden md:inline">Mã QR & Số Lô</span>
             </button>
 
-            <Link href="/gio-hang" className="btn-gold relative !px-3 !py-2">
+            <Link href="/gio-hang" prefetch={true} className="btn-gold relative !px-3 !py-2">
               <ShoppingCart size={20} />
               <span className="hidden sm:inline">Giỏ hàng</span>
               {ready && count > 0 && (
@@ -119,6 +120,7 @@ export default function Header() {
               <Link
                 key={item.href}
                 href={item.href}
+                prefetch={true}
                 className={`block rounded-xl px-3 py-3 font-semibold ${
                   ready && isCurrent(path, item.href) ? "bg-white/10 text-[var(--gold)]" : "text-white"
                 }`}

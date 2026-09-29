@@ -56,7 +56,7 @@ function TiltCard({ l }: { l: (typeof lines)[number] }) {
         <h3 className="text-gold-gradient text-2xl font-bold">{l.name}</h3>
         <p className="mt-3 text-[var(--gold-light)]/85">{l.desc}</p>
       </div>
-      <Link href={l.href} className="btn-gold mt-6">
+      <Link href={l.href} prefetch={true} className="btn-gold mt-6">
         Xem ngay
       </Link>
     </motion.div>

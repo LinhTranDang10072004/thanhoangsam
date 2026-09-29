@@ -73,6 +73,7 @@ export default function ProductDetail({ product }: { product: Product }) {
 
             <Link
               href="/trai-nghiem-3d"
+              prefetch={true}
               className="text-xs font-bold text-[var(--red)] hover:text-[var(--gold)] transition flex items-center gap-1"
             >
               <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
