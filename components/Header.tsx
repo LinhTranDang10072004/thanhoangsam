@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, Phone, ShoppingCart, X } from "lucide-react";
+import { Menu, Phone, ShoppingCart, X, QrCode } from "lucide-react";
 import { nav, site } from "@/lib/site";
 import { useCart } from "./CartProvider";
+import QRScanModal from "./QRScanModal";
 
 function isCurrent(path: string, href: string) {
   if (href === "/") return path === "/";
@@ -17,6 +18,7 @@ export default function Header() {
   const { count } = useCart();
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
+  const [showQR, setShowQR] = useState(false);
 
   useEffect(() => {
     setReady(true);
@@ -68,6 +70,17 @@ export default function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
+            {/* Nút Quét mã QR trên thanh điều hướng */}
+            <button
+              type="button"
+              onClick={() => setShowQR(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-3 py-2 text-xs font-bold text-[var(--gold-light)] shadow backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10]"
+              title="Quét mã QR để xem mã sản phẩm & số lô thu hoạch"
+            >
+              <QrCode size={18} className="text-[var(--gold)]" />
+              <span className="hidden md:inline">Quét mã QR</span>
+            </button>
+
             <Link href="/gio-hang" className="btn-gold relative !px-3 !py-2">
               <ShoppingCart size={20} />
               <span className="hidden sm:inline">Giỏ hàng</span>
@@ -90,6 +103,18 @@ export default function Header() {
         </div>
         {open && (
           <nav className="space-y-1 border-t border-white/15 px-4 py-3 lg:hidden" aria-label="Di động">
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                setShowQR(true);
+              }}
+              className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--gold)] to-amber-500 py-3 font-bold text-[#3a0a10] shadow"
+            >
+              <QrCode size={20} />
+              <span>Quét mã QR tra cứu số lô</span>
+            </button>
+
             {nav.map((item) => (
               <Link
                 key={item.href}
@@ -104,6 +129,9 @@ export default function Header() {
           </nav>
         )}
       </div>
+
+      {/* Cửa sổ Quét mã QR & Tra cứu lô sâm */}
+      <QRScanModal isOpen={showQR} onClose={() => setShowQR(false)} />
     </header>
   );
 }
