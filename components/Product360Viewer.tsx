@@ -11,11 +11,7 @@ import {
   Minimize2,
   Sparkles,
   Compass,
-  Layers,
-  Camera,
-  ChevronLeft,
-  ChevronRight,
-  Check,
+  RotateCw,
 } from "lucide-react";
 import type { Product } from "@/lib/data";
 
@@ -182,19 +178,20 @@ export default function Product360Viewer({ product }: { product: Product }) {
   const [rotation, setRotation] = useState({ y: 0, x: -4 });
   const [zoom, setZoom] = useState(1);
   const [isAutoSpin, setIsAutoSpin] = useState(true);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [activeHotspot, setActiveHotspot] = useState<Hotspot | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
-  const [copiedAngle, setCopiedAngle] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const dragStart = useRef<{ x: number; y: number; ry: number; rx: number } | null>(null);
   const spinInterval = useRef<NodeJS.Timeout | null>(null);
+  const resumeTimeout = useRef<NodeJS.Timeout | null>(null);
 
   const hotspots = productHotspots[product.slug] || defaultHotspots;
   const normalizedAngle = Math.round(((rotation.y % 360) + 360) % 360);
 
-  // Tự động xoay khi isAutoSpin = true
+  // Tự động xoay chậm nhẹ nhàng khi chưa tương tác (chuẩn phong cách Apple / Yamaha 360)
   useEffect(() => {
     if (!isAutoSpin || isDragging) {
       if (spinInterval.current) clearInterval(spinInterval.current);
@@ -204,19 +201,22 @@ export default function Product360Viewer({ product }: { product: Product }) {
     spinInterval.current = setInterval(() => {
       setRotation((prev) => ({
         ...prev,
-        y: prev.y + 0.65,
+        y: prev.y + 0.45, // Tốc độ xoay êm dịu, không giật
       }));
-    }, 28);
+    }, 30);
 
     return () => {
       if (spinInterval.current) clearInterval(spinInterval.current);
     };
   }, [isAutoSpin, isDragging]);
 
-  // Kéo chuột / vuốt tay để xoay camera 360 (chuẩn phong cách Yamaha)
+  // Kéo chuột / vuốt tay để xoay camera 360 mượt mà
   const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
     setIsDragging(true);
     setIsAutoSpin(false);
+    setHasInteracted(true);
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+
     e.currentTarget.setPointerCapture(e.pointerId);
     dragStart.current = {
       x: e.clientX,
@@ -232,7 +232,7 @@ export default function Product360Viewer({ product }: { product: Product }) {
     const deltaY = e.clientY - dragStart.current.y;
 
     const newY = dragStart.current.ry + deltaX * 0.55;
-    const newX = Math.max(-20, Math.min(18, dragStart.current.rx - deltaY * 0.2));
+    const newX = Math.max(-20, Math.min(18, dragStart.current.rx - deltaY * 0.18));
 
     setRotation({ y: newY, x: newX });
   };
@@ -240,25 +240,19 @@ export default function Product360Viewer({ product }: { product: Product }) {
   const handlePointerUp = () => {
     setIsDragging(false);
     dragStart.current = null;
-  };
 
-  const setPresetAngle = (targetDeg: number) => {
-    setIsAutoSpin(false);
-    setRotation({ y: targetDeg, x: -4 });
+    // Tự động bật lại xoay nhẹ sau 4 giây không tương tác
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    resumeTimeout.current = setTimeout(() => {
+      setIsAutoSpin(true);
+    }, 4000);
   };
 
   const handleSelectHotspot = (hs: Hotspot) => {
     setIsAutoSpin(false);
+    setHasInteracted(true);
     setActiveHotspot(activeHotspot?.id === hs.id ? null : hs);
     setRotation({ y: hs.angle, x: -4 });
-  };
-
-  const copyAngleView = () => {
-    navigator.clipboard?.writeText?.(
-      `${window.location.origin}${window.location.pathname}?angle=${normalizedAngle}`
-    );
-    setCopiedAngle(true);
-    setTimeout(() => setCopiedAngle(false), 2200);
   };
 
   return (
@@ -270,36 +264,32 @@ export default function Product360Viewer({ product }: { product: Product }) {
           : "w-full"
       }`}
     >
-      {/* Khung sàn Studio 360 (Showroom Floor) - Thiết kế như Yamaha Motor */}
+      {/* Khung sàn Studio 360 (Showroom Floor) - Thiết kế tối giản, sang trọng chuẩn shop quốc tế */}
       <div
-        className={`relative w-full overflow-hidden rounded-3xl border-4 border-[var(--gold)]/80 bg-gradient-to-b from-[#240306] via-[#140103] to-[#0a0002] shadow-[0_25px_60px_rgba(0,0,0,0.9)] transition-all ${
-          isFullscreen ? "h-[85vh] max-w-5xl" : "h-[500px] sm:h-[550px]"
+        className={`relative w-full overflow-hidden rounded-3xl border-3 border-[var(--gold)]/80 bg-gradient-to-b from-[#240306] via-[#140103] to-[#0a0002] shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-all ${
+          isFullscreen ? "h-[88vh] max-w-5xl" : "h-[460px] sm:h-[520px]"
         }`}
       >
-        {/* Header HUD: Góc xoay & Chế độ xem */}
+        {/* Header HUD Tinh tế: Badge 360° & Góc độ */}
         <div className="pointer-events-none absolute left-4 right-4 top-4 z-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-black/70 px-3.5 py-1.5 backdrop-blur-md">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-            </span>
-            <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)] flex items-center gap-1.5">
-              <Camera className="h-3.5 w-3.5 text-[var(--gold)]" />
-              Camera 360° Studio
+          <div className="flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-black/75 px-3 py-1.5 backdrop-blur-md shadow-md">
+            <RotateCw className="h-3.5 w-3.5 text-[var(--gold)] animate-spin-slow" />
+            <span className="text-xs font-bold uppercase tracking-wider text-[var(--gold-light)]">
+              Xoay 360° Studio
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-black/70 px-3 py-1.5 text-xs font-mono font-bold text-[var(--gold)] backdrop-blur-md">
-              <Compass className="h-3.5 w-3.5 animate-spin-slow" />
+            <div className="flex items-center gap-1.5 rounded-full border border-[var(--gold)]/40 bg-black/75 px-3 py-1.5 text-xs font-mono font-bold text-[var(--gold)] backdrop-blur-md shadow-md">
+              <Compass className="h-3.5 w-3.5" />
               <span>{normalizedAngle}°</span>
             </div>
             <button
               type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="pointer-events-auto rounded-full border border-[var(--gold)]/40 bg-black/70 p-2 text-[var(--gold-light)] transition hover:bg-[var(--red)] hover:text-white"
+              className="pointer-events-auto rounded-full border border-[var(--gold)]/40 bg-black/75 p-2 text-[var(--gold-light)] transition hover:bg-[var(--gold)] hover:text-[#3a0a10]"
               title={isFullscreen ? "Thu nhỏ" : "Toàn màn hình"}
-              aria-label={isFullscreen ? "Thu nhỏ màn hình" : "Phóng to toàn màn hình"}
+              aria-label={isFullscreen ? "Thu nhỏ" : "Toàn màn hình"}
             >
               {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
             </button>
@@ -308,7 +298,7 @@ export default function Product360Viewer({ product }: { product: Product }) {
 
         {/* Khung tương tác xoay 3D trực tiếp (Showroom 3D Stage) */}
         <div
-          className="relative flex h-full w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing pb-12"
+          className="relative flex h-full w-full cursor-grab items-center justify-center touch-none active:cursor-grabbing pb-10"
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
@@ -320,14 +310,14 @@ export default function Product360Viewer({ product }: { product: Product }) {
             className="pointer-events-none absolute inset-0 opacity-40 transition-transform duration-300"
             style={{
               background: `radial-gradient(ellipse at ${
-                50 + Math.sin((rotation.y * Math.PI) / 180) * 30
+                50 + Math.sin((rotation.y * Math.PI) / 180) * 28
               }% 25%, rgba(246, 227, 161, 0.45) 0%, rgba(155, 17, 30, 0.15) 50%, transparent 75%)`,
             }}
           />
 
           {/* Bàn xoay Studio mặt sàn kiểu Yamaha (Turntable Stage) */}
           <div
-            className="pointer-events-none absolute bottom-12 flex items-center justify-center transition-transform duration-100"
+            className="pointer-events-none absolute bottom-10 flex items-center justify-center transition-transform duration-100"
             style={{
               transform: `rotateX(74deg) rotateZ(${rotation.y}deg) scale(${zoom})`,
               transformStyle: "preserve-3d",
@@ -353,7 +343,7 @@ export default function Product360Viewer({ product }: { product: Product }) {
             <div className="absolute h-44 w-44 rounded-full bg-black/90 blur-xl" />
           </div>
 
-          {/* VẬT THỂ SẢN PHẨM 3D: CỦ SÂM NGUYÊN GỐC RỄ ĐỨNG TỰ DO (KHÔNG BỊ ĐÓNG HỘP) */}
+          {/* VẬT THỂ SẢN PHẨM 3D: CỦ SÂM NGUYÊN GỐC RỄ ĐỨNG TỰ DO */}
           <div
             className="relative flex items-center justify-center transition-transform duration-75"
             style={{
@@ -409,41 +399,45 @@ export default function Product360Viewer({ product }: { product: Product }) {
             })}
           </div>
 
-          {/* Thanh chỉ dẫn xoay dạng Yamaha Reel Bar ở đáy sàn */}
-          <div className="pointer-events-none absolute bottom-3 z-10 flex items-center gap-2 rounded-full border border-[var(--gold)]/30 bg-black/75 px-4 py-1.5 text-xs text-[var(--gold-light)] backdrop-blur-md shadow-lg">
-            <span className="text-[var(--gold)] font-bold">◄</span>
-            <span>Kéo chuột hoặc vuốt để xoay tròn 360° quanh củ sâm</span>
-            <span className="text-[var(--gold)] font-bold">►</span>
+          {/* Dòng chỉ dẫn vuốt xoay trực quan (tự biến mất sau khi người dùng kéo) */}
+          <div
+            className={`pointer-events-none absolute bottom-4 z-10 flex items-center gap-2 rounded-full border border-[var(--gold)]/30 bg-black/75 px-4 py-1.5 text-xs text-[var(--gold-light)] backdrop-blur-md shadow-lg transition-opacity duration-500 ${
+              hasInteracted && !isDragging ? "opacity-60" : "opacity-100"
+            }`}
+          >
+            <span className="text-[var(--gold)] font-bold text-sm">◄</span>
+            <span>Chạm hoặc kéo sang 2 bên để xoay 360°</span>
+            <span className="text-[var(--gold)] font-bold text-sm">►</span>
           </div>
         </div>
 
-        {/* Nút điều khiển nhanh bên góc phải */}
-        <div className="absolute bottom-16 right-4 z-20 flex flex-col gap-2">
+        {/* Cụm nút điều khiển nổi mờ tinh tế bên góc dưới phải */}
+        <div className="absolute bottom-4 right-4 z-20 flex items-center gap-1.5">
           {/* Nút tự động xoay */}
           <button
             type="button"
             onClick={() => setIsAutoSpin(!isAutoSpin)}
-            className={`flex h-10 w-10 items-center justify-center rounded-full border shadow-lg backdrop-blur-md transition ${
+            className={`flex h-8 w-8 items-center justify-center rounded-full border shadow-md backdrop-blur-md transition ${
               isAutoSpin
-                ? "border-[var(--gold)] bg-[var(--red)] text-white ring-2 ring-[var(--gold)]/40"
-                : "border-[var(--gold)]/50 bg-black/70 text-[var(--gold-light)] hover:bg-[var(--red)]"
+                ? "border-[var(--gold)] bg-[var(--gold)] text-[#3a0a10] font-bold"
+                : "border-[var(--gold)]/40 bg-black/70 text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#3a0a10]"
             }`}
             title={isAutoSpin ? "Dừng tự xoay" : "Bật tự xoay 360°"}
-            aria-label={isAutoSpin ? "Dừng tự xoay" : "Bật tự xoay 360 độ"}
+            aria-label={isAutoSpin ? "Dừng tự xoay" : "Bật tự xoay 360°"}
           >
-            {isAutoSpin ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4 ml-0.5" />}
+            {isAutoSpin ? <Pause className="h-3.5 w-3.5" /> : <Play className="h-3.5 w-3.5 ml-0.5" />}
           </button>
 
           {/* Phóng to */}
           <button
             type="button"
-            onClick={() => setZoom((z) => Math.min(1.8, +(z + 0.2).toFixed(1)))}
-            disabled={zoom >= 1.8}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gold)]/50 bg-black/70 text-[var(--gold-light)] shadow-lg backdrop-blur-md transition hover:bg-[var(--red)] hover:text-white disabled:opacity-40"
+            onClick={() => setZoom((z) => Math.min(1.6, +(z + 0.2).toFixed(1)))}
+            disabled={zoom >= 1.6}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-black/70 text-[var(--gold-light)] shadow-md backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10] disabled:opacity-30"
             title="Phóng to"
             aria-label="Phóng to"
           >
-            <ZoomIn className="h-4 w-4" />
+            <ZoomIn className="h-3.5 w-3.5" />
           </button>
 
           {/* Thu nhỏ */}
@@ -451,11 +445,11 @@ export default function Product360Viewer({ product }: { product: Product }) {
             type="button"
             onClick={() => setZoom((z) => Math.max(0.8, +(z - 0.2).toFixed(1)))}
             disabled={zoom <= 0.8}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gold)]/50 bg-black/70 text-[var(--gold-light)] shadow-lg backdrop-blur-md transition hover:bg-[var(--red)] hover:text-white disabled:opacity-40"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-black/70 text-[var(--gold-light)] shadow-md backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10] disabled:opacity-30"
             title="Thu nhỏ"
             aria-label="Thu nhỏ"
           >
-            <ZoomOut className="h-4 w-4" />
+            <ZoomOut className="h-3.5 w-3.5" />
           </button>
 
           {/* Reset góc 0 */}
@@ -466,17 +460,17 @@ export default function Product360Viewer({ product }: { product: Product }) {
               setZoom(1);
               setIsAutoSpin(false);
             }}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--gold)]/50 bg-black/70 text-[var(--gold-light)] shadow-lg backdrop-blur-md transition hover:bg-[var(--red)] hover:text-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-black/70 text-[var(--gold-light)] shadow-md backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10]"
             title="Đặt lại mặt trước (0°)"
             aria-label="Đặt lại mặt trước"
           >
-            <RotateCcw className="h-4 w-4" />
+            <RotateCcw className="h-3.5 w-3.5" />
           </button>
         </div>
 
         {/* Card hiển thị chi tiết khi bấm Hotspot */}
         {activeHotspot && (
-          <div className="absolute bottom-20 left-4 right-16 z-30 max-w-sm rounded-2xl border-2 border-[var(--gold)] bg-[#2a0508]/95 p-4 text-white shadow-2xl backdrop-blur-lg animate-in fade-in slide-in-from-bottom-2 sm:left-4">
+          <div className="absolute bottom-16 left-4 right-16 z-30 max-w-sm rounded-2xl border-2 border-[var(--gold)] bg-[#2a0508]/95 p-4 text-white shadow-2xl backdrop-blur-lg animate-in fade-in slide-in-from-bottom-2 sm:left-4">
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--gold)] text-xs font-bold text-[#3a0a10]">
@@ -488,164 +482,20 @@ export default function Product360Viewer({ product }: { product: Product }) {
                 type="button"
                 onClick={() => setActiveHotspot(null)}
                 className="text-xs text-[var(--gold-light)] hover:text-white"
-                aria-label="Đóng bảng thông tin"
+                aria-label="Đóng"
               >
                 ✕
               </button>
             </div>
-            <p className="mt-2 text-sm leading-relaxed text-stone-200">{activeHotspot.desc}</p>
-            <div className="mt-3 flex items-center justify-between border-t border-[var(--gold)]/20 pt-2 text-xs text-[var(--gold)]">
-              <span>Góc tối ưu: {activeHotspot.angle}°</span>
-              <button
-                type="button"
-                onClick={() => handleSelectHotspot(activeHotspot)}
-                className="font-bold underline hover:text-white"
-              >
-                Căn thẳng góc này
-              </button>
-            </div>
+            <p className="mt-2 text-xs sm:text-sm leading-relaxed text-stone-200">
+              {activeHotspot.desc}
+            </p>
           </div>
         )}
       </div>
 
-      {/* THANH ĐIỀU KHIỂN YAMAHA 360 REEL SLIDER (Thanh trượt xoay 360 độ chuẩn) */}
-      <div className="mt-4 rounded-2xl border-2 border-[var(--gold-light)] bg-white p-3.5 shadow-md">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          {/* Thanh trượt xoay theo góc độ */}
-          <div className="flex flex-1 items-center gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setIsAutoSpin(false);
-                setRotation((prev) => ({ ...prev, y: prev.y - 25 }));
-              }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--gold)] bg-[var(--cream)] text-[var(--red)] transition hover:bg-[var(--gold-light)]"
-              title="Xoay sang trái 25°"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-
-            <div className="relative flex flex-1 items-center px-1">
-              <input
-                type="range"
-                min="0"
-                max="360"
-                value={normalizedAngle}
-                onChange={(e) => {
-                  setIsAutoSpin(false);
-                  setRotation({ y: Number(e.target.value), x: -4 });
-                }}
-                className="w-full h-2.5 bg-stone-200 rounded-lg appearance-none cursor-pointer accent-[var(--red)]"
-                aria-label="Thanh trượt xoay 360 độ"
-              />
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setIsAutoSpin(false);
-                setRotation((prev) => ({ ...prev, y: prev.y + 25 }));
-              }}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[var(--gold)] bg-[var(--cream)] text-[var(--red)] transition hover:bg-[var(--gold-light)]"
-              title="Xoay sang phải 25°"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-
-          {/* Nhãn hiển thị góc & nút lưu góc */}
-          <div className="flex items-center justify-between sm:justify-end gap-3 border-t sm:border-t-0 pt-2 sm:pt-0 border-stone-100">
-            <span className="font-mono text-xs font-bold text-[var(--red)] bg-[#fff3f4] px-2.5 py-1 rounded-md border border-[var(--red)]/20">
-              Góc quay: {normalizedAngle}° / 360°
-            </span>
-
-            <button
-              type="button"
-              onClick={copyAngleView}
-              className="inline-flex items-center gap-1 rounded-lg border border-[var(--gold)] bg-[var(--cream)] px-2.5 py-1 text-xs font-bold text-[var(--red-dark)] transition hover:bg-[var(--gold-light)]"
-            >
-              {copiedAngle ? (
-                <>
-                  <Check className="h-3 w-3 text-emerald-600" />
-                  <span>Đã lưu!</span>
-                </>
-              ) : (
-                <>
-                  <Camera className="h-3 w-3 text-[var(--red)]" />
-                  <span>Lưu góc ({normalizedAngle}°)</span>
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-
-        {/* Các góc định vị nhanh (Preset buttons kiểu Yamaha) */}
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-stone-100 pt-3">
-          <div className="flex flex-wrap items-center gap-1.5">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-stone-500 mr-1 flex items-center gap-1">
-              <Layers className="h-3 w-3" /> Chọn góc:
-            </span>
-            <button
-              type="button"
-              onClick={() => setPresetAngle(0)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
-                normalizedAngle >= 345 || normalizedAngle <= 15
-                  ? "border-[var(--red)] bg-[var(--red)] text-white shadow-sm"
-                  : "border-[var(--gold-light)] bg-white text-[var(--red)] hover:border-[var(--gold)]"
-              }`}
-            >
-              Mặt trước (0°)
-            </button>
-            <button
-              type="button"
-              onClick={() => setPresetAngle(45)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
-                normalizedAngle >= 35 && normalizedAngle <= 65
-                  ? "border-[var(--red)] bg-[var(--red)] text-white shadow-sm"
-                  : "border-[var(--gold-light)] bg-white text-[var(--red)] hover:border-[var(--gold)]"
-              }`}
-            >
-              Góc nghiêng (45°)
-            </button>
-            <button
-              type="button"
-              onClick={() => setPresetAngle(90)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
-                normalizedAngle >= 75 && normalizedAngle <= 105
-                  ? "border-[var(--red)] bg-[var(--red)] text-white shadow-sm"
-                  : "border-[var(--gold-light)] bg-white text-[var(--red)] hover:border-[var(--gold)]"
-              }`}
-            >
-              Mặt phải (90°)
-            </button>
-            <button
-              type="button"
-              onClick={() => setPresetAngle(180)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
-                normalizedAngle >= 165 && normalizedAngle <= 195
-                  ? "border-[var(--red)] bg-[var(--red)] text-white shadow-sm"
-                  : "border-[var(--gold-light)] bg-white text-[var(--red)] hover:border-[var(--gold)]"
-              }`}
-            >
-              Mặt sau (180°)
-            </button>
-            <button
-              type="button"
-              onClick={() => setPresetAngle(270)}
-              className={`rounded-lg border px-2.5 py-1 text-xs font-bold transition ${
-                normalizedAngle >= 255 && normalizedAngle <= 285
-                  ? "border-[var(--red)] bg-[var(--red)] text-white shadow-sm"
-                  : "border-[var(--gold-light)] bg-white text-[var(--red)] hover:border-[var(--gold)]"
-              }`}
-            >
-              Mặt trái (270°)
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Thẻ mô tả các điểm đặc trưng (Hotspot chips) */}
-      <div className="mt-3.5 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+      {/* Thẻ mô tả các điểm đặc trưng (Hotspot chips) - Bấm vào là củ sâm tự động xoay tới góc đó */}
+      <div className="mt-3.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
         {hotspots.map((hs, idx) => (
           <button
             key={hs.id}
@@ -653,7 +503,7 @@ export default function Product360Viewer({ product }: { product: Product }) {
             onClick={() => handleSelectHotspot(hs)}
             className={`flex items-start gap-2.5 rounded-xl border p-2.5 text-left transition ${
               activeHotspot?.id === hs.id
-                ? "border-[var(--red)] bg-[#fff3f4] ring-2 ring-[var(--red)]/20"
+                ? "border-[var(--red)] bg-[#fff3f4] ring-2 ring-[var(--red)]/20 shadow-sm"
                 : "border-[var(--gold-light)] bg-white hover:border-[var(--gold)] hover:bg-[#fffdf8]"
             }`}
           >
@@ -677,12 +527,12 @@ export default function Product360Viewer({ product }: { product: Product }) {
   );
 }
 
-// Render củ sâm nguyên gốc rễ hoa vàng đứng tự do trong không gian 3D (phong cách Yamaha Motor)
+// Render củ sâm nguyên gốc rễ hoa vàng đứng tự do trong không gian 3D
 function renderYamahaVisual(product: Product) {
   const isSamTuoi = product.slug === "sam-bao-tuoi";
   const imgSrc = isSamTuoi
     ? "/images/sam-bao-tuoi-cutout.png"
-    : (product.image || "/images/sam-bao-tuoi.jpg");
+    : product.image || "/images/sam-bao-tuoi.jpg";
 
   return (
     <div className="relative flex flex-col items-center justify-center">
