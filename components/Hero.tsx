@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
-import { Camera } from "lucide-react";
 import GinsengArt from "./GinsengArt";
 
 const particles = Array.from({ length: 18 }, (_, i) => ({
@@ -107,15 +106,11 @@ export default function Hero() {
                 />
               </div>
 
-              <div className="relative z-10 flex flex-col items-center pb-2">
+              <div className="relative z-10 flex flex-col items-center pb-3">
                 <span className="text-gold-gradient font-black tracking-widest text-lg">SÂM BÁO NÚI BÁO</span>
-                <Link
-                  href="/trai-nghiem-3d"
-                  className="mt-1 inline-flex items-center gap-1.5 rounded-full bg-[var(--red)]/85 hover:bg-[var(--red)] px-3 py-1 text-xs font-bold text-white shadow transition"
-                >
-                  <Camera className="h-3.5 w-3.5 text-[var(--gold)]" />
-                  <span>Xoay Camera 360° Studio</span>
-                </Link>
+                <span className="text-[11px] font-semibold tracking-wider text-[var(--gold-light)]/85 uppercase mt-0.5">
+                  Đại Việt Đệ Nhất Danh Sâm
+                </span>
               </div>
             </div>
           </motion.div>
