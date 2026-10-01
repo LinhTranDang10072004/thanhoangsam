@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { audiences, needs, productTypes, products } from "@/lib/data";
+import { productTypes, products } from "@/lib/data";
 import ProductCard from "./ProductCard";
 
 function Chip({
@@ -18,9 +18,9 @@ function Chip({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`rounded-full border-2 px-4 py-2 font-semibold transition ${
+      className={`rounded-full border-2 px-4 py-2 font-semibold text-sm transition ${
         active
-          ? "border-[var(--red)] bg-[var(--red)] text-[var(--gold-light)]"
+          ? "border-[var(--red)] bg-[var(--red)] text-[var(--gold-light)] shadow-md"
           : "border-[var(--gold)] bg-white text-[var(--red)] hover:bg-[var(--gold-light)]"
       }`}
     >
@@ -33,8 +33,6 @@ export default function ProductFilter() {
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  const aud = params.get("doi-tuong");
-  const need = params.get("nhu-cau");
   const type = params.get("loai");
 
   function toggle(key: string, value: string, current: string | null) {
@@ -46,66 +44,50 @@ export default function ProductFilter() {
   }
 
   const list = products.filter(
-    (product) =>
-      (!aud || product.audience.includes(aud)) &&
-      (!need || product.needs.includes(need)) &&
-      (!type || product.type === type),
+    (product) => !type || product.type === type,
   );
-  const filtering = Boolean(aud || need || type);
+  const filtering = Boolean(type);
 
   return (
     <div>
-      <div className="card mb-8 space-y-4 p-6">
+      {/* Bộ lọc loại sản phẩm */}
+      <div className="card mb-8 p-5 sm:p-6 shadow-md border border-[var(--gold)]/40">
         <div>
-          <p className="mb-2 font-bold text-[var(--red)]">Loại sản phẩm</p>
-          <div className="flex flex-wrap gap-2">
+          <p className="mb-3 font-heading font-black text-base sm:text-lg text-[var(--red)] uppercase tracking-wide">
+            Loại sản phẩm
+          </p>
+          <div className="flex flex-wrap gap-2.5">
             {productTypes.map((item) => (
               <Chip key={item} label={item} active={type === item} onClick={() => toggle("loai", item, type)} />
             ))}
           </div>
         </div>
-        <div>
-          <p className="mb-2 font-bold text-[var(--red)]">Đối tượng sử dụng</p>
-          <div className="flex flex-wrap gap-2">
-            {audiences.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                active={aud === item}
-                onClick={() => toggle("doi-tuong", item, aud)}
-              />
-            ))}
-          </div>
-        </div>
-        <div>
-          <p className="mb-2 font-bold text-[var(--red)]">Nhu cầu sức khỏe</p>
-          <div className="flex flex-wrap gap-2">
-            {needs.map((item) => (
-              <Chip
-                key={item}
-                label={item}
-                active={need === item}
-                onClick={() => toggle("nhu-cau", item, need)}
-              />
-            ))}
-          </div>
-        </div>
+
         {filtering && (
-          <button type="button" className="font-semibold text-[var(--red)] underline" onClick={() => router.replace(pathname)}>
-            Xóa bộ lọc
+          <button
+            type="button"
+            className="mt-4 inline-block font-bold text-xs sm:text-sm text-[var(--red)] hover:underline"
+            onClick={() => router.replace(pathname)}
+          >
+            ✕ Xóa bộ lọc (Xem tất cả)
           </button>
         )}
       </div>
 
-      <p className="mb-4 font-semibold text-[var(--red)]">
-        {list.length} sản phẩm{filtering ? " phù hợp" : ""}
+      <p className="mb-4 font-semibold text-sm sm:text-base text-[var(--red)]">
+        {list.length} sản phẩm{filtering ? ` thuộc danh mục "${type}"` : " chính hãng"}
       </p>
+
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((product) => (
           <ProductCard key={product.slug} p={product} />
         ))}
       </div>
-      {list.length === 0 && <p className="py-10 text-center">Chưa có sản phẩm phù hợp. Bác bỏ bớt một bộ lọc nhé.</p>}
+      {list.length === 0 && (
+        <p className="py-12 text-center text-stone-600">
+          Chưa có sản phẩm nào thuộc phân loại này. Quý khách vui lòng chọn loại sản phẩm khác.
+        </p>
+      )}
     </div>
   );
 }
