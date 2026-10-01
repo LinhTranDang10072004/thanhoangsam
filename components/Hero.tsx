@@ -22,18 +22,28 @@ export default function Hero() {
 
   return (
     <section ref={ref} className="relative flex min-h-[92vh] items-center overflow-hidden bg-luxury text-white">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover"
+        src="/images/1790691441845_2251207849705082306_2251207849705082306.mp4"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+
       {!reduce &&
         particles.map((p, i) => (
           <motion.span
             key={i}
-            className="absolute bottom-0 rounded-full bg-[var(--gold)]"
+            className="absolute bottom-0 rounded-full bg-[var(--gold)] z-0"
             style={{ left: p.left, width: p.size, height: p.size, opacity: 0.6 }}
             animate={{ y: [0, -900], opacity: [0, 0.8, 0] }}
             transition={{ duration: p.dur, delay: p.delay, repeat: Infinity, ease: "easeOut" }}
           />
         ))}
 
-      <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 md:grid-cols-2">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 md:grid-cols-2">
         <motion.div style={{ y: yText, opacity: fade }}>
           <motion.p
             initial={reduce ? false : { opacity: 0, letterSpacing: "0.1em" }}
@@ -79,6 +89,28 @@ export default function Hero() {
               Xem nguồn gốc
             </Link>
           </motion.div>
+
+          <motion.div
+            initial={reduce ? false : { opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.1 }}
+            className="mt-10 flex w-full gap-3 overflow-x-auto pb-4 md:pb-0 [&::-webkit-scrollbar]:hidden"
+          >
+            {[
+              "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
+              "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg",
+              "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg",
+              "/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg",
+              "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg"
+            ].map((src, idx) => (
+              <img
+                key={idx}
+                src={src}
+                alt={`Ảnh thực tế ${idx + 1}`}
+                className="h-16 w-24 shrink-0 object-cover rounded-lg opacity-80 hover:opacity-100 transition border border-[var(--gold)]/40"
+              />
+            ))}
+          </motion.div>
         </motion.div>
 
         <motion.div style={{ y: yImg }} className="relative flex justify-center">
@@ -118,7 +150,7 @@ export default function Hero() {
       </div>
 
       <motion.div
-        className="absolute bottom-6 left-1/2 flex h-10 w-6 -translate-x-1/2 justify-center rounded-full border border-[var(--gold)]/70 pt-2"
+        className="absolute bottom-6 left-1/2 flex h-10 w-6 -translate-x-1/2 justify-center rounded-full border border-[var(--gold)]/70 pt-2 z-10"
         animate={reduce ? undefined : { opacity: [0.4, 1, 0.4] }}
         transition={{ duration: 2, repeat: Infinity }}
         aria-hidden

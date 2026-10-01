@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import QRCode from "qrcode";
 import {
@@ -17,10 +18,13 @@ import {
   Download,
   Copy,
   ExternalLink,
-  Upload,
   RefreshCw,
   Search,
-  Check,
+  Play,
+  ChevronLeft,
+  ChevronRight,
+  Image as ImageIcon,
+  Video,
 } from "lucide-react";
 import { lots, type Lot } from "@/lib/data";
 
@@ -36,53 +40,165 @@ interface ProductPreset {
   slug: string;
 }
 
+// Media gallery cho từng lô – ảnh thật + video từ /public/images/
+const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; thumb?: string }>> = {
+  "SB-2026-0915": [
+    { type: "image", src: "/images/sam-bao-tuoi.jpg" },
+    { type: "image", src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg" },
+    { type: "image", src: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg" },
+    { type: "image", src: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg" },
+    { type: "image", src: "/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg" },
+    { type: "video", src: "/images/1790691441845_2251207849705082306_2251207849705082306.mp4" },
+    { type: "video", src: "/images/1790691441875_2251207849705082306_2251207849705082306.mp4" },
+  ],
+  "SK-2026-0601": [
+    { type: "image", src: "/images/sam-bao-kho.jpg" },
+    { type: "image", src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg" },
+    { type: "image", src: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg" },
+    { type: "image", src: "/images/1790691442069_2251207849705082306_2251207849705082306_38971826cc8331ac9d7612bd266f8633.jpg" },
+    { type: "image", src: "/images/1790691442095_2251207849705082306_2251207849705082306_6d97ca5064721c8d9a1349080f124d78.jpg" },
+    { type: "video", src: "/images/1790691441952_2251207849705082306_2251207849705082306.mp4" },
+  ],
+  "CS-2026-0802": [
+    { type: "image", src: "/images/cao-sam-bao.jpg" },
+    { type: "image", src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg" },
+    { type: "image", src: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg" },
+    { type: "image", src: "/images/1790691442168_2251207849705082306_2251207849705082306_051a85d7dfd861e704025cb3efdbb529.jpg" },
+    { type: "image", src: "/images/1790691442192_2251207849705082306_2251207849705082306_261714ea9c39c974959288ba34fa0843.jpg" },
+    { type: "video", src: "/images/1790691442241_2251207849705082306_2251207849705082306.mp4" },
+  ],
+  "RS-2026-0718": [
+    { type: "image", src: "/images/ruou-sam-bao.jpg" },
+    { type: "image", src: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg" },
+    { type: "image", src: "/images/1790691442289_2251207849705082306_2251207849705082306_ea1efa9505c05626aeb4942b73d4488a.jpg" },
+    { type: "image", src: "/images/1790691442314_2251207849705082306_2251207849705082306_9703c4794efb0550246cbeaf4930d7c6.jpg" },
+    { type: "image", src: "/images/1790691442355_2251207849705082306_2251207849705082306_17ee32629c1429b7a8ac65adf693c575.jpg" },
+    { type: "video", src: "/images/1790691442427_2251207849705082306_2251207849705082306.mp4" },
+  ],
+};
+
+const lotExtras: Record<string, { sku: string; saponin: string; image: string; slug: string }> = {
+  "SB-2026-0915": { sku: "THS-ST-01", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/sam-bao-tuoi.jpg", slug: "sam-bao-tuoi" },
+  "SK-2026-0601": { sku: "THS-SK-02", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/sam-bao-kho.jpg", slug: "sam-bao-kho" },
+  "CS-2026-0802": { sku: "THS-CS-03", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/cao-sam-bao.jpg", slug: "cao-sam-bao" },
+  "RS-2026-0718": { sku: "THS-RS-04", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/ruou-sam-bao.jpg", slug: "ruou-sam-bao" },
+};
+
 const productPresets: ProductPreset[] = [
-  {
-    name: "Sâm Báo Tươi Nguyên Củ (Hộp 1kg)",
-    sku: "THS-ST-01",
-    lotCode: "SB-2026-0915",
-    harvest: "15/09/2026",
-    packed: "16/09/2026",
-    place: "Đỉnh núi Báo, xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa",
-    saponin: "18.4 mg/g (Dược điển loại 1)",
-    image: "/images/sam-bao-tuoi.jpg",
-    slug: "sam-bao-tuoi",
-  },
-  {
-    name: "Sâm Báo Khô Thái Lát Thượng Hạng (Hộp 500g)",
-    sku: "THS-SK-02",
-    lotCode: "SK-2026-0601",
-    harvest: "01/06/2026",
-    packed: "05/06/2026",
-    place: "Xưởng sấy thăng hoa chân không Vĩnh Lộc",
-    saponin: "17.2 mg/g (Sấy lạnh chân không)",
-    image: "/images/sam-bao-kho.jpg",
-    slug: "sam-bao-kho",
-  },
-  {
-    name: "Cao Sâm Báo Hoàng Triều (Hũ 200g)",
-    sku: "THS-CS-03",
-    lotCode: "CS-2026-0802",
-    harvest: "02/08/2026",
-    packed: "10/08/2026",
-    place: "Khu chế biến sâu dược liệu Núi Báo",
-    saponin: "32.8 mg/g (Cô đặc 72 giờ)",
-    image: "/images/cao-sam-bao.jpg",
-    slug: "cao-sam-bao",
-  },
-  {
-    name: "Rượu Sâm Báo Hoàng Gia (Bình 2 Lít)",
-    sku: "THS-RS-04",
-    lotCode: "RS-2026-0718",
-    harvest: "18/07/2026",
-    packed: "22/07/2026",
-    place: "Hầm ủ rượu truyền thống Vĩnh Lộc",
-    saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)",
-    image: "/images/ruou-sam-bao.jpg",
-    slug: "ruou-sam-bao",
-  },
+  { name: "Sâm Báo Tươi Nguyên Củ (Hộp 1kg)", sku: "THS-ST-01", lotCode: "SB-2026-0915", harvest: "15/09/2026", packed: "16/09/2026", place: "Đỉnh núi Báo, xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/sam-bao-tuoi.jpg", slug: "sam-bao-tuoi" },
+  { name: "Sâm Báo Khô Thái Lát Thượng Hạng (Hộp 500g)", sku: "THS-SK-02", lotCode: "SK-2026-0601", harvest: "01/06/2026", packed: "05/06/2026", place: "Xưởng sấy thăng hoa chân không Vĩnh Lộc", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/sam-bao-kho.jpg", slug: "sam-bao-kho" },
+  { name: "Cao Sâm Báo Hoàng Triều (Hũ 200g)", sku: "THS-CS-03", lotCode: "CS-2026-0802", harvest: "02/08/2026", packed: "10/08/2026", place: "Khu chế biến sâu dược liệu Núi Báo", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/cao-sam-bao.jpg", slug: "cao-sam-bao" },
+  { name: "Rượu Sâm Báo Hoàng Gia (Bình 2 Lít)", sku: "THS-RS-04", lotCode: "RS-2026-0718", harvest: "18/07/2026", packed: "22/07/2026", place: "Hầm ủ rượu truyền thống Vĩnh Lộc", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/ruou-sam-bao.jpg", slug: "ruou-sam-bao" },
 ];
 
+// ─── Gallery Component ───────────────────────────────────────────────
+function MediaGallery({ lotCode }: { lotCode: string }) {
+  const media = lotMediaMap[lotCode] ?? [];
+  const [activeIdx, setActiveIdx] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const current = media[activeIdx];
+  const prev = () => setActiveIdx((i) => (i - 1 + media.length) % media.length);
+  const next = () => setActiveIdx((i) => (i + 1) % media.length);
+
+  useEffect(() => {
+    setActiveIdx(0);
+  }, [lotCode]);
+
+  if (media.length === 0) return null;
+
+  return (
+    <div className="space-y-3">
+      {/* Main viewer */}
+      <div className="relative w-full rounded-2xl overflow-hidden border-2 border-[var(--gold)]/40 bg-black shadow-2xl"
+        style={{ aspectRatio: "16/9" }}>
+        {current?.type === "image" ? (
+          <img
+            key={current.src}
+            src={current.src}
+            alt="Ảnh sản phẩm"
+            className="w-full h-full object-cover animate-in fade-in duration-300"
+          />
+        ) : current?.type === "video" ? (
+          <video
+            ref={videoRef}
+            key={current.src}
+            src={current.src}
+            controls
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover animate-in fade-in duration-300"
+          />
+        ) : null}
+
+        {/* Badge loại media */}
+        <div className="absolute top-2 left-2 flex items-center gap-1 rounded-full bg-black/70 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm border border-white/20">
+          {current?.type === "video" ? (
+            <><Video className="h-3 w-3 text-red-400" /><span className="text-red-300">VIDEO</span></>
+          ) : (
+            <><ImageIcon className="h-3 w-3 text-amber-400" /><span className="text-amber-300">ẢNH THỰC TẾ</span></>
+          )}
+        </div>
+
+        {/* Counter */}
+        <div className="absolute top-2 right-2 rounded-full bg-black/70 px-2 py-1 text-[10px] font-bold text-white backdrop-blur-sm border border-white/20">
+          {activeIdx + 1} / {media.length}
+        </div>
+
+        {/* Prev/Next */}
+        {media.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={prev}
+              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-black/70 p-2 text-white hover:bg-[var(--gold)] hover:text-[#3a0a10] transition backdrop-blur-sm border border-white/20"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={next}
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-black/70 p-2 text-white hover:bg-[var(--gold)] hover:text-[#3a0a10] transition backdrop-blur-sm border border-white/20"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Thumbnails strip */}
+      {media.length > 1 && (
+        <div className="flex gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+          {media.map((item, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => setActiveIdx(idx)}
+              className={`relative shrink-0 h-14 w-20 rounded-lg overflow-hidden border-2 transition-all ${
+                idx === activeIdx
+                  ? "border-[var(--gold)] shadow-[0_0_8px_rgba(212,175,55,0.5)]"
+                  : "border-white/20 opacity-60 hover:opacity-90 hover:border-[var(--gold)]/60"
+              }`}
+            >
+              {item.type === "image" ? (
+                <img src={item.src} alt="" className="h-full w-full object-cover" />
+              ) : (
+                <div className="h-full w-full bg-black/80 flex flex-col items-center justify-center gap-0.5">
+                  <Play className="h-5 w-5 text-red-400 fill-red-400" />
+                  <span className="text-[9px] text-red-300 font-bold">VIDEO</span>
+                </div>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Modal ──────────────────────────────────────────────────────
 export default function QRScanModal({
   isOpen,
   onClose,
@@ -90,20 +206,17 @@ export default function QRScanModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  // Mặc định mở Tab Quét / Chụp ảnh tra cứu số lô cho khách hàng mua về kiểm tra
   const [activeTab, setActiveTab] = useState<"scan" | "generate">("scan");
 
-  // Tab 1 (scan): Tra cứu số lô & Chụp ảnh tem
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [inputCode, setInputCode] = useState<string>("");
-  const [scannedLot, setScannedLot] = useState<Lot | null>(lots[0]); // Mặc định hiển thị sẵn lô đầu tiên để khách thấy rõ mẫu
+  const [scannedLot, setScannedLot] = useState<Lot | null>(lots[0]);
   const [hasError, setHasError] = useState<boolean>(false);
   const [cameraActive, setCameraActive] = useState<boolean>(false);
   const [capturedPhotoUrl, setCapturedPhotoUrl] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Tab 2 (generate): Tự tạo tem QR
   const [selectedPresetIndex, setSelectedPresetIndex] = useState<number>(0);
   const [customSku, setCustomSku] = useState<string>("THS-ST-01");
   const [customLot, setCustomLot] = useState<string>("SB-2026-0915");
@@ -112,28 +225,20 @@ export default function QRScanModal({
   const [copiedLink, setCopiedLink] = useState<boolean>(false);
   const [originUrl, setOriginUrl] = useState<string>("");
 
-  // Lấy origin của website hiện tại
   useEffect(() => {
     if (typeof window !== "undefined") {
       setOriginUrl(window.location.origin);
     }
   }, []);
 
-  // Tự động sinh mã QR khi ở tab generate
   const generateQRCode = useCallback(async () => {
     try {
       const baseUrl = originUrl || "https://thanhoangsam.vn";
-      const verifyUrl = `${baseUrl}/nguon-goc?lot=${encodeURIComponent(
-        customLot.trim()
-      )}&sku=${encodeURIComponent(customSku.trim())}`;
-
+      const verifyUrl = `${baseUrl}/nguon-goc?lot=${encodeURIComponent(customLot.trim())}&sku=${encodeURIComponent(customSku.trim())}`;
       const url = await QRCode.toDataURL(verifyUrl, {
         width: 320,
         margin: 2,
-        color: {
-          dark: "#2b0609",
-          light: "#ffffff",
-        },
+        color: { dark: "#2b0609", light: "#ffffff" },
         errorCorrectionLevel: "H",
       });
       setQrDataUrl(url);
@@ -148,7 +253,6 @@ export default function QRScanModal({
     }
   }, [isOpen, activeTab, generateQRCode]);
 
-  // Khi chọn preset sản phẩm
   const handleSelectPreset = (index: number) => {
     setSelectedPresetIndex(index);
     const p = productPresets[index];
@@ -157,7 +261,6 @@ export default function QRScanModal({
     setCustomLot(p.lotCode);
   };
 
-  // Sao chép link xác thực
   const handleCopyLink = () => {
     const baseUrl = originUrl || "https://thanhoangsam.vn";
     const link = `${baseUrl}/nguon-goc?lot=${encodeURIComponent(customLot.trim())}`;
@@ -167,7 +270,6 @@ export default function QRScanModal({
     });
   };
 
-  // Tải tem QR về máy
   const handleDownloadQR = () => {
     if (!qrDataUrl) return;
     const a = document.createElement("a");
@@ -178,18 +280,14 @@ export default function QRScanModal({
     document.body.removeChild(a);
   };
 
-  // Quét / Tra cứu mã số lô
   const handleScanCode = (codeToScan: string) => {
     const trimmed = codeToScan.trim();
     if (!trimmed) return;
     setIsScanning(true);
     setHasError(false);
-
     setTimeout(() => {
       setIsScanning(false);
-      const found = lots.find(
-        (l) => l.code.toLowerCase() === trimmed.toLowerCase()
-      );
+      const found = lots.find((l) => l.code.toLowerCase() === trimmed.toLowerCase());
       if (found) {
         setScannedLot(found);
         setHasError(false);
@@ -200,19 +298,12 @@ export default function QRScanModal({
     }, 400);
   };
 
-  // Quản lý Camera trực tiếp
   useEffect(() => {
     let stream: MediaStream | null = null;
     if (isOpen && activeTab === "scan" && cameraActive && !capturedPhotoUrl) {
       if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
         navigator.mediaDevices
-          .getUserMedia({
-            video: {
-              facingMode: { ideal: "environment" },
-              width: { ideal: 640 },
-              height: { ideal: 640 },
-            },
-          })
+          .getUserMedia({ video: { facingMode: { ideal: "environment" }, width: { ideal: 640 }, height: { ideal: 640 } } })
           .then((s) => {
             stream = s;
             if (videoRef.current) {
@@ -220,48 +311,63 @@ export default function QRScanModal({
               videoRef.current.play().catch(() => {});
             }
           })
-          .catch(() => {
-            setCameraActive(false);
-          });
+          .catch(() => { setCameraActive(false); });
       }
     }
-
-    return () => {
-      if (stream) {
-        stream.getTracks().forEach((track) => track.stop());
-      }
-    };
+    return () => { if (stream) stream.getTracks().forEach((t) => t.stop()); };
   }, [isOpen, activeTab, cameraActive, capturedPhotoUrl]);
 
-  // Xử lý khi khách hàng bấm "Chụp ảnh / Tải ảnh tem trên vỏ hộp"
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target?.result as string;
       setCapturedPhotoUrl(dataUrl);
       setCameraActive(false);
-      // Giả lập nhận diện mã QR từ ảnh chụp tem thực tế của khách hàng
       handleScanCode("SB-2026-0915");
     };
     reader.readAsDataURL(file);
   };
 
+  // Khoá scroll body khi modal mở
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => { document.body.style.overflow = ""; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  return (
+  const extra = scannedLot ? lotExtras[scannedLot.code] : null;
+
+  // createPortal: render thẳng vào document.body để thoát khỏi stacking context của <header>
+  // Header có backdrop-blur-md (backdrop-filter) → tạo stacking context mới → fixed bị "trap"
+  return createPortal(
+    /* Overlay – fixed, toàn màn hình, căn giữa hoàn toàn */
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center"
+      style={{ padding: "clamp(8px, 3vw, 24px)" }}
       onClick={onClose}
     >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/85 backdrop-blur-md" aria-hidden="true" />
+
+      {/* Modal box – tự căn giữa qua flex parent */}
       <div
-        className="relative flex w-full max-w-xl md:max-w-2xl max-h-[86vh] flex-col rounded-2xl sm:rounded-3xl border-2 sm:border-3 border-[var(--gold)] bg-[#160204] text-white shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden"
+        className="relative z-10 flex w-full flex-col rounded-2xl sm:rounded-3xl border-2 border-[var(--gold)] bg-[#160204] text-white shadow-[0_32px_80px_rgba(0,0,0,0.95)]"
+        style={{
+          maxWidth: "680px",
+          maxHeight: "calc(100dvh - clamp(16px, 6vw, 48px))",
+          minHeight: 0,
+        }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header Modal - Cố định trên đỉnh (shrink-0) */}
-        <div className="shrink-0 flex items-center justify-between border-b border-[var(--gold)]/30 bg-gradient-to-r from-[var(--red)] to-[#3a0a10] px-4 py-3 sm:px-6 sm:py-3.5">
+        {/* ── Header ── */}
+        <div className="shrink-0 flex items-center justify-between border-b border-[var(--gold)]/30 bg-gradient-to-r from-[var(--red)] to-[#3a0a10] px-4 py-3 sm:px-6 sm:py-3.5 rounded-t-2xl sm:rounded-t-3xl">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[var(--gold)] text-[#3a0a10] shadow font-bold">
               <QrCode className="h-5 w-5" />
@@ -279,13 +385,13 @@ export default function QRScanModal({
             type="button"
             onClick={onClose}
             className="rounded-full p-1.5 text-[var(--gold-light)] hover:bg-white/10 hover:text-white transition"
-            aria-label="Đóng bảng tra cứu"
+            aria-label="Đóng"
           >
             <X size={22} />
           </button>
         </div>
 
-        {/* Thanh chuyển Tab - Cố định (shrink-0) */}
+        {/* ── Tabs ── */}
         <div className="shrink-0 flex border-b border-[var(--gold)]/30 bg-black/50 px-3 pt-2">
           <button
             type="button"
@@ -297,7 +403,7 @@ export default function QRScanModal({
             }`}
           >
             <Camera className="h-4 w-4" />
-            <span>Quét / Chụp ảnh tra cứu số lô</span>
+            <span>Quét / Tra cứu số lô</span>
           </button>
           <button
             type="button"
@@ -309,24 +415,25 @@ export default function QRScanModal({
             }`}
           >
             <Sparkles className="h-4 w-4" />
-            <span>Tự tạo tem QR (In ấn)</span>
+            <span>Tự tạo tem QR</span>
           </button>
         </div>
 
-        {/* Thân Modal - Cuộn mượt mà 100% với flex-1 min-h-0 overflow-y-auto */}
-        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 touch-pan-y scrollbar-thin">
-          {/* ================= TAB 1: QUÉT / CHỤP ẢNH TRA CỨU SỐ LÔ SẢN PHẨM ================= */}
+        {/* ── Body (scrollable) ── */}
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4 touch-pan-y">
+
+          {/* ═══ TAB 1: QUÉT / TRA CỨU ═══ */}
           {activeTab === "scan" && (
             <div className="space-y-4 animate-in fade-in">
-              {/* Lời dẫn dành cho khách mua hàng về kiểm tra */}
+              {/* Hướng dẫn */}
               <div className="rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-3 text-xs text-[var(--gold-light)] flex items-start gap-2.5">
                 <ShieldCheck className="h-4 w-4 shrink-0 text-[var(--gold)] mt-0.5" />
                 <p>
-                  Quý khách đã mua sản phẩm về có thể <b>Chụp ảnh tem QR trên vỏ hộp</b> hoặc <b>bật Camera quét trực tiếp</b> để tra cứu ngày thu hoạch, số lô sản xuất và vùng trồng sâm chính hãng.
+                  Quý khách đã mua sản phẩm về có thể <b>Chụp ảnh tem QR</b> hoặc <b>bật Camera quét trực tiếp</b> để tra cứu ngày thu hoạch, số lô sản xuất và vùng trồng sâm chính hãng.
                 </p>
               </div>
 
-              {/* NÚT CHỤP ẢNH TEM TRÊN VỎ HỘP CHO KHÁCH (NỔI BẬT NHẤT) */}
+              {/* Nút chụp / camera */}
               <div className="rounded-2xl border-2 border-[var(--gold)]/60 bg-gradient-to-b from-[#2b0508] to-black/60 p-4 text-center space-y-3 shadow-lg">
                 <input
                   ref={fileInputRef}
@@ -336,7 +443,6 @@ export default function QRScanModal({
                   className="hidden"
                   onChange={handleFileChange}
                 />
-
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5">
                   <button
                     type="button"
@@ -344,79 +450,56 @@ export default function QRScanModal({
                     className="btn-gold w-full sm:w-auto !py-3 !px-6 text-sm font-extrabold flex items-center justify-center gap-2 shadow-xl hover:scale-[1.02] transition"
                   >
                     <Camera className="h-5 w-5 text-[#3a0a10]" />
-                    <span>Chụp ảnh tem trên vỏ hộp của bạn</span>
+                    <span>Chụp ảnh tem trên vỏ hộp</span>
                   </button>
-
                   <button
                     type="button"
-                    onClick={() => {
-                      setCameraActive(!cameraActive);
-                      setCapturedPhotoUrl(null);
-                    }}
+                    onClick={() => { setCameraActive(!cameraActive); setCapturedPhotoUrl(null); }}
                     className="w-full sm:w-auto rounded-xl border border-[var(--gold)]/50 bg-black/60 px-4 py-3 text-xs font-bold text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#3a0a10] transition flex items-center justify-center gap-1.5"
                   >
                     <RefreshCw className="h-4 w-4" />
-                    <span>{cameraActive ? "Tắt Camera quét" : "Mở Camera quét trực tiếp"}</span>
+                    <span>{cameraActive ? "Tắt Camera" : "Mở Camera quét trực tiếp"}</span>
                   </button>
                 </div>
-
-                <p className="text-[11px] text-stone-300">
-                  📱 Bấm chụp bằng điện thoại hoặc chọn ảnh chụp tem từ máy tính
-                </p>
+                <p className="text-[11px] text-stone-300">📱 Bấm chụp bằng điện thoại hoặc chọn ảnh chụp tem từ máy tính</p>
               </div>
 
-              {/* KHUNG HIỂN THỊ CAMERA HOẶC ẢNH VỪA CHỤP */}
+              {/* Khung camera / ảnh đã chụp */}
               {(cameraActive || capturedPhotoUrl) && (
                 <div className="relative mx-auto flex h-56 w-56 sm:h-64 sm:w-64 items-center justify-center overflow-hidden rounded-2xl border-2 border-[var(--gold)] bg-black shadow-inner">
                   {capturedPhotoUrl ? (
                     <div className="relative h-full w-full">
-                      <img
-                        src={capturedPhotoUrl}
-                        alt="Ảnh chụp tem của bạn"
-                        className="h-full w-full object-contain bg-black"
-                      />
+                      <img src={capturedPhotoUrl} alt="Ảnh chụp tem" className="h-full w-full object-contain bg-black" />
                       <button
                         type="button"
                         onClick={() => setCapturedPhotoUrl(null)}
                         className="absolute top-2 right-2 rounded-full bg-red-600/80 p-1 text-white hover:bg-red-700"
-                        title="Chụp lại"
                       >
                         <X size={16} />
                       </button>
                     </div>
                   ) : (
-                    <video
-                      ref={videoRef}
-                      playsInline
-                      muted
-                      autoPlay
-                      className="absolute inset-0 h-full w-full object-cover"
-                    />
+                    <video ref={videoRef} playsInline muted autoPlay className="absolute inset-0 h-full w-full object-cover" />
                   )}
-
-                  {/* Khung ngắm quét mã QR */}
                   {!capturedPhotoUrl && (
                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
                       <div className="relative h-40 w-40 sm:h-48 sm:w-48">
-                        <div className="absolute top-0 left-0 h-5 w-5 border-t-3 border-l-3 border-[var(--gold)]" />
-                        <div className="absolute top-0 right-0 h-5 w-5 border-t-3 border-r-3 border-[var(--gold)]" />
-                        <div className="absolute bottom-0 left-0 h-5 w-5 border-b-3 border-l-3 border-[var(--gold)]" />
-                        <div className="absolute bottom-0 right-0 h-5 w-5 border-b-3 border-r-3 border-[var(--gold)]" />
-                        <div className="absolute left-1 right-1 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent shadow-[0_0_12px_#ff0000] animate-scan" />
+                        <div className="absolute top-0 left-0 h-5 w-5 border-t-2 border-l-2 border-[var(--gold)]" />
+                        <div className="absolute top-0 right-0 h-5 w-5 border-t-2 border-r-2 border-[var(--gold)]" />
+                        <div className="absolute bottom-0 left-0 h-5 w-5 border-b-2 border-l-2 border-[var(--gold)]" />
+                        <div className="absolute bottom-0 right-0 h-5 w-5 border-b-2 border-r-2 border-[var(--gold)]" />
+                        <div className="absolute left-1 right-1 top-0 h-0.5 bg-gradient-to-r from-transparent via-red-500 to-transparent animate-scan" />
                       </div>
                     </div>
                   )}
-
                   <div className="absolute bottom-2 flex items-center gap-1.5 rounded-full bg-black/80 px-2.5 py-1 text-[11px] text-[var(--gold-light)] backdrop-blur-md border border-[var(--gold)]/30">
                     <span className="h-2 w-2 rounded-full bg-emerald-400 animate-ping" />
-                    <span>
-                      {capturedPhotoUrl ? "Đã nạp ảnh tem của bạn" : "Hướng camera vào tem hộp sâm"}
-                    </span>
+                    <span>{capturedPhotoUrl ? "Đã nạp ảnh tem" : "Hướng camera vào tem hộp"}</span>
                   </div>
                 </div>
               )}
 
-              {/* Ô NHẬP TAY MÃ SỐ IN TRÊN TEM */}
+              {/* Nhập tay mã lô */}
               <div className="rounded-xl border border-[var(--gold)]/30 bg-black/40 p-3 space-y-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-[var(--gold)]">
                   Hoặc nhập mã số lô in trên tem:
@@ -426,34 +509,27 @@ export default function QRScanModal({
                     type="text"
                     value={inputCode}
                     onChange={(e) => setInputCode(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") handleScanCode(inputCode);
-                    }}
+                    onKeyDown={(e) => { if (e.key === "Enter") handleScanCode(inputCode); }}
                     placeholder="VD: SB-2026-0915..."
                     className="flex-1 rounded-xl border border-[var(--gold)]/40 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-stone-400 outline-none focus:border-[var(--gold)] font-mono"
                   />
                   <button
                     type="button"
                     onClick={() => handleScanCode(inputCode)}
-                    disabled={!inputCode.trim()}
-                    className="btn-gold !py-2 !px-4 text-xs font-bold flex items-center gap-1 shadow"
+                    disabled={!inputCode.trim() || isScanning}
+                    className="btn-gold !py-2 !px-4 text-xs font-bold flex items-center gap-1 shadow disabled:opacity-50"
                   >
                     <Search className="h-3.5 w-3.5" />
-                    <span>Tra cứu</span>
+                    <span>{isScanning ? "..." : "Tra cứu"}</span>
                   </button>
                 </div>
-
-                {/* Bấm nhanh mã mẫu để thử nghiệm */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[11px]">
                   <span className="text-stone-400">Thử nhanh mã:</span>
                   {lots.map((l) => (
                     <button
                       key={l.code}
                       type="button"
-                      onClick={() => {
-                        setInputCode(l.code);
-                        handleScanCode(l.code);
-                      }}
+                      onClick={() => { setInputCode(l.code); handleScanCode(l.code); }}
                       className={`rounded-lg border px-2 py-0.5 font-mono text-[11px] transition ${
                         scannedLot?.code === l.code
                           ? "border-[var(--gold)] bg-[var(--gold)] text-[#3a0a10] font-bold"
@@ -466,19 +542,16 @@ export default function QRScanModal({
                 </div>
               </div>
 
-              {/* KẾT QUẢ XÁC THỰC LÔ HÀNG CHÍNH HÃNG */}
+              {/* KẾT QUẢ XÁC THỰC – redesigned với gallery */}
               {scannedLot && (
-                <div className="rounded-2xl border-2 border-emerald-500/80 bg-gradient-to-b from-[#0a2312] to-[#041108] p-4 shadow-2xl animate-in fade-in">
-                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/30 pb-2.5">
+                <div className="rounded-2xl border-2 border-emerald-500/80 bg-gradient-to-b from-[#0a2312] to-[#041108] p-4 shadow-2xl animate-in fade-in space-y-4">
+                  {/* Header kết quả */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-emerald-500/30 pb-3">
                     <div className="flex items-center gap-2 text-emerald-400">
-                      <CheckCircle2 className="h-5 w-5 text-emerald-400 shrink-0" />
+                      <CheckCircle2 className="h-5 w-5 shrink-0" />
                       <div>
-                        <h4 className="font-extrabold text-white text-sm sm:text-base">
-                          CHỨNG THỰC CHÍNH HÃNG 100%
-                        </h4>
-                        <p className="text-[10px] sm:text-xs text-emerald-300">
-                          Bảo chứng nguồn gốc Thanh Hoàng Sâm Vĩnh Lộc
-                        </p>
+                        <h4 className="font-extrabold text-white text-sm sm:text-base">CHỨNG THỰC CHÍNH HÃNG 100%</h4>
+                        <p className="text-[10px] text-emerald-300">Bảo chứng nguồn gốc Thanh Hoàng Sâm Vĩnh Lộc</p>
                       </div>
                     </div>
                     <span className="rounded-full bg-emerald-500/20 px-3 py-1 font-mono text-xs font-black text-emerald-300 border border-emerald-400/40">
@@ -486,47 +559,53 @@ export default function QRScanModal({
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-[90px_1fr] gap-3 items-start">
-                    {/* Ảnh sản phẩm theo lô */}
-                    <div className="h-20 w-20 overflow-hidden rounded-xl border border-emerald-400/40 bg-black shadow mx-auto sm:mx-0">
-                      <img
-                        src={
-                          scannedLot.code.startsWith("SB")
-                            ? "/images/sam-bao-tuoi.jpg"
-                            : scannedLot.code.startsWith("SK")
-                            ? "/images/sam-bao-kho.jpg"
-                            : scannedLot.code.startsWith("CS")
-                            ? "/images/cao-sam-bao.jpg"
-                            : "/images/ruou-sam-bao.jpg"
-                        }
-                        alt={scannedLot.product}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
+                  {/* Gallery ảnh thật + video */}
+                  <MediaGallery lotCode={scannedLot.code} />
 
-                    <div className="space-y-1 text-xs text-stone-200">
-                      <p className="text-sm font-bold text-[var(--gold-light)]">
-                        {scannedLot.product}
-                      </p>
+                  {/* Thông tin lô hàng */}
+                  <div className="rounded-xl border border-emerald-500/30 bg-black/40 p-3 space-y-2 text-xs text-stone-200">
+                    <p className="text-sm font-bold text-[var(--gold-light)]">{scannedLot.product}</p>
+                    {extra && (
                       <p className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                        <span>Nơi trồng: <b>{scannedLot.place}</b></span>
+                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                        <span>Mã SKU: <b className="text-white font-mono">{extra.sku}</b></span>
                       </p>
-                      <p className="flex items-center gap-1.5">
-                        <Calendar className="h-3.5 w-3.5 text-sky-400 shrink-0" />
-                        <span>
-                          Thu hoạch: <b>{scannedLot.harvest}</b> • Đóng gói: <b>{scannedLot.packed}</b>
-                        </span>
+                    )}
+                    <p className="flex items-center gap-1.5">
+                      <MapPin className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                      <span>Nơi trồng: <b>{scannedLot.place}</b></span>
+                    </p>
+                    <p className="flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5 text-sky-400 shrink-0" />
+                      <span>Thu hoạch: <b>{scannedLot.harvest}</b> • Đóng gói: <b>{scannedLot.packed}</b></span>
+                    </p>
+                    {extra && (
+                      <p className="text-xs text-emerald-300 font-semibold">
+                        Dược chất Saponin: {extra.saponin}
                       </p>
-                      <p className="text-stone-300 italic pt-1 border-t border-emerald-500/20 text-[11px]">
-                        {scannedLot.note}
-                      </p>
-                    </div>
+                    )}
+                    <p className="text-[11px] text-stone-400 italic pt-1 border-t border-emerald-500/20">
+                      {scannedLot.note}
+                    </p>
                   </div>
+
+                  {/* CTA */}
+                  {extra && (
+                    <div className="flex justify-end">
+                      <Link
+                        href={`/san-pham/${extra.slug}`}
+                        onClick={onClose}
+                        className="btn-gold !py-2 !px-4 text-xs font-bold flex items-center gap-1.5"
+                      >
+                        <span>Xem chi tiết sản phẩm</span>
+                        <ArrowRight className="h-4 w-4" />
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
 
-              {/* BÁO LỖI KHÔNG TÌM THẤY */}
+              {/* Lỗi không tìm thấy */}
               {hasError && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-rose-500/60 bg-rose-950/40 p-3 text-xs text-rose-200 animate-in fade-in">
                   <AlertCircle className="h-4 w-4 text-rose-400 shrink-0 mt-0.5" />
@@ -541,21 +620,17 @@ export default function QRScanModal({
             </div>
           )}
 
-          {/* ================= TAB 2: TỰ TẠO MÃ QR & TEM BẢO CHỨNG (DÀNH CHO IN ẤN) ================= */}
+          {/* ═══ TAB 2: TẠO TEM QR ═══ */}
           {activeTab === "generate" && (
             <div className="space-y-4 animate-in fade-in">
               <div className="rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/10 p-3 text-xs text-[var(--gold-light)] flex items-start gap-2">
                 <Sparkles className="h-4 w-4 shrink-0 text-[var(--gold)] mt-0.5" />
-                <p>
-                  Tự động sinh tem QR chính hãng để in ấn dán lên hộp sản phẩm. Khách mua về quét tem sẽ ra đúng số lô này.
-                </p>
+                <p>Tự động sinh tem QR chính hãng để in ấn dán lên hộp sản phẩm. Khách mua về quét tem sẽ ra đúng số lô này.</p>
               </div>
 
               {/* Chọn sản phẩm */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-1.5">
-                  Chọn sản phẩm để tạo tem:
-                </label>
+                <label className="block text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-1.5">Chọn sản phẩm để tạo tem:</label>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                   {productPresets.map((p, idx) => (
                     <button
@@ -568,26 +643,18 @@ export default function QRScanModal({
                           : "border-[var(--gold)]/40 bg-black/40 text-stone-300 hover:border-[var(--gold)]"
                       }`}
                     >
-                      <span className="font-mono text-xs text-[var(--gold-light)]">
-                        {p.sku}
-                      </span>
-                      <span className="line-clamp-1 mt-0.5 text-[11px]">
-                        {p.name.split(" (")[0]}
-                      </span>
-                      <span className="text-[10px] text-stone-400 font-mono">
-                        {p.lotCode}
-                      </span>
+                      <span className="font-mono text-xs text-[var(--gold-light)]">{p.sku}</span>
+                      <span className="line-clamp-1 mt-0.5 text-[11px]">{p.name.split(" (")[0]}</span>
+                      <span className="text-[10px] text-stone-400 font-mono">{p.lotCode}</span>
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Nhập mã SKU & Số Lô */}
+              {/* Nhập SKU & Số lô */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 rounded-xl border border-[var(--gold)]/30 bg-black/40 p-3">
                 <div>
-                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
-                    Mã sản phẩm (SKU):
-                  </label>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">Mã sản phẩm (SKU):</label>
                   <input
                     type="text"
                     value={customSku}
@@ -596,9 +663,7 @@ export default function QRScanModal({
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">
-                    Số lô sản xuất (LOT):
-                  </label>
+                  <label className="block text-[11px] font-semibold text-stone-300 mb-1">Số lô sản xuất (LOT):</label>
                   <input
                     type="text"
                     value={customLot}
@@ -608,45 +673,29 @@ export default function QRScanModal({
                 </div>
               </div>
 
-              {/* KHUNG TEM CHỐNG GIẢ GỌN GÀNG ĐẸP MẮT */}
+              {/* Tem QR */}
               <div className="relative mx-auto max-w-xs rounded-2xl border-2 border-[var(--gold)] bg-gradient-to-b from-white via-stone-50 to-amber-50/50 p-3.5 text-[#2b0609] shadow-2xl">
                 <div className="text-center pb-1.5 border-b border-amber-300/80">
                   <div className="inline-block rounded-full bg-[var(--red)] px-2 py-0.5 text-[9px] font-black uppercase text-[var(--gold-light)] shadow-sm">
                     TEM BẢO CHỨNG CHÍNH HÃNG
                   </div>
-                  <h4 className="font-heading text-xs font-black tracking-wide text-[var(--red)] uppercase mt-0.5">
-                    THANH HOÀNG SÂM
-                  </h4>
-                  <p className="text-[9px] text-stone-600">
-                    Sâm Báo Vĩnh Lộc – Đại Việt Đệ Nhất Danh Sâm
-                  </p>
+                  <h4 className="font-heading text-xs font-black tracking-wide text-[var(--red)] uppercase mt-0.5">THANH HOÀNG SÂM</h4>
+                  <p className="text-[9px] text-stone-600">Sâm Báo Vĩnh Lộc – Đại Việt Đệ Nhất Danh Sâm</p>
                 </div>
-
                 <div className="my-2 flex flex-col items-center justify-center">
                   <div className="relative rounded-lg border border-amber-400 bg-white p-1.5 shadow-inner">
                     {qrDataUrl ? (
-                      <img
-                        src={qrDataUrl}
-                        alt="Mã QR tra cứu nguồn gốc"
-                        className="h-36 w-36 sm:h-40 sm:w-40 object-contain"
-                      />
+                      <img src={qrDataUrl} alt="Mã QR" className="h-36 w-36 sm:h-40 sm:w-40 object-contain" />
                     ) : (
-                      <div className="h-36 w-36 flex items-center justify-center text-xs text-stone-400">
-                        Đang tạo mã...
-                      </div>
+                      <div className="h-36 w-36 flex items-center justify-center text-xs text-stone-400">Đang tạo mã...</div>
                     )}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <div className="h-7 w-7 rounded-full bg-white p-0.5 shadow border border-[var(--gold)]">
-                        <img
-                          src="/images/logo.png"
-                          alt="Logo"
-                          className="h-full w-full rounded-full object-contain"
-                        />
+                        <img src="/images/logo.png" alt="Logo" className="h-full w-full rounded-full object-contain" />
                       </div>
                     </div>
                   </div>
                 </div>
-
                 <div className="space-y-0.5 rounded-lg bg-amber-100/60 p-2 text-[10px] border border-amber-200">
                   <div className="flex justify-between font-bold">
                     <span>Mã SKU:</span>
@@ -659,26 +708,16 @@ export default function QRScanModal({
                 </div>
               </div>
 
-              {/* Các nút hành động */}
+              {/* Nút hành động */}
               <div className="flex flex-wrap items-center justify-center gap-2 pt-1">
-                <button
-                  type="button"
-                  onClick={handleDownloadQR}
-                  className="btn-gold !py-2 !px-3.5 text-xs font-bold flex items-center gap-1.5 shadow"
-                >
+                <button type="button" onClick={handleDownloadQR} className="btn-gold !py-2 !px-3.5 text-xs font-bold flex items-center gap-1.5 shadow">
                   <Download className="h-4 w-4" />
                   <span>Tải ảnh Tem QR (PNG)</span>
                 </button>
-
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="rounded-xl border border-[var(--gold)]/60 bg-black/50 px-3.5 py-2 text-xs font-bold text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#3a0a10] transition flex items-center gap-1.5"
-                >
+                <button type="button" onClick={handleCopyLink} className="rounded-xl border border-[var(--gold)]/60 bg-black/50 px-3.5 py-2 text-xs font-bold text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#3a0a10] transition flex items-center gap-1.5">
                   <Copy className="h-4 w-4" />
                   <span>{copiedLink ? "Đã chép link!" : "Sao chép link"}</span>
                 </button>
-
                 <Link
                   href={`/nguon-goc?lot=${encodeURIComponent(customLot)}`}
                   onClick={onClose}
@@ -692,6 +731,7 @@ export default function QRScanModal({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

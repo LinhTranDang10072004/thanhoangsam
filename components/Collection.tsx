@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
-import GinsengArt from "./GinsengArt";
 import Reveal from "./Reveal";
 
 const lines = [
@@ -11,18 +10,21 @@ const lines = [
     desc: "Củ sâm hoa vàng thu hoạch tháng 9–12, tươi nguyên vị hoặc thái lát sấy khô.",
     href: "/san-pham/sam-bao-tuoi",
     image: "/images/sam-bao-tuoi.jpg",
+    hoverImage: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
   },
   {
     name: "Cao Sâm Báo",
     desc: "Nấu cô đặc thủ công, tiện dùng mỗi ngày.",
     href: "/san-pham/cao-sam-bao",
     image: "/images/cao-sam-bao.jpg",
+    hoverImage: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
   },
   {
     name: "Rượu Sâm Báo",
     desc: "Ngâm ủ từ củ 3 năm tuổi, quà biếu trang trọng. Chỉ dành cho người từ đủ 18 tuổi.",
     href: "/san-pham/ruou-sam-bao",
     image: "/images/ruou-sam-bao.jpg",
+    hoverImage: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
   },
 ];
 
@@ -47,18 +49,19 @@ function TiltCard({ l }: { l: (typeof lines)[number] }) {
         y.set(0);
       }}
       whileHover={reduce ? undefined : { scale: 1.03 }}
-      className="glass gold-border-glow h-full rounded-3xl p-6 text-center flex flex-col justify-between"
+      className="group relative h-96 w-full rounded-3xl overflow-hidden shadow-2xl gold-border-glow"
     >
-      <div>
-        <div className="mx-auto mb-4 flex h-48 w-full max-w-[220px] items-center justify-center overflow-hidden rounded-2xl border-2 border-[var(--gold)]/50 shadow-xl bg-black/40">
-          <img src={l.image} alt={l.name} className="h-full w-full object-cover object-center" />
-        </div>
+      <img src={l.image} alt={l.name} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" />
+      <img src={l.hoverImage} alt={`${l.name} hover`} className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent p-6 text-left">
         <h3 className="text-gold-gradient text-2xl font-bold">{l.name}</h3>
-        <p className="mt-3 text-[var(--gold-light)]/85">{l.desc}</p>
+        <p className="mt-2 text-[var(--gold-light)]/85">{l.desc}</p>
+        <div className="mt-4">
+          <Link href={l.href} prefetch={true} className="btn-gold inline-block">
+            Xem ngay
+          </Link>
+        </div>
       </div>
-      <Link href={l.href} prefetch={true} className="btn-gold mt-6">
-        Xem ngay
-      </Link>
     </motion.div>
   );
 }

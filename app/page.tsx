@@ -6,6 +6,7 @@ import Stats from "@/components/Stats";
 import Story from "@/components/Story";
 import Reveal from "@/components/Reveal";
 import ProductCard from "@/components/ProductCard";
+import GallerySection from "@/components/GallerySection";
 import { products } from "@/lib/data";
 
 export default function Home() {
@@ -32,6 +33,7 @@ export default function Home() {
       </section>
 
       <Stats />
+      <GallerySection />
       <Story />
 
       <section className="bg-luxury py-24 text-center text-white">
