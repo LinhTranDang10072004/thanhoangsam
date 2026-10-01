@@ -253,11 +253,11 @@ export default function QRScanModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/85 p-2 sm:p-4 backdrop-blur-md overscroll-contain animate-in fade-in"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in"
       onClick={onClose}
     >
       <div
-        className="relative my-auto flex w-full max-w-xl md:max-w-2xl max-h-[92vh] flex-col rounded-2xl sm:rounded-3xl border-2 sm:border-3 border-[var(--gold)] bg-[#160204] text-white shadow-2xl overflow-hidden"
+        className="relative flex w-full max-w-xl md:max-w-2xl max-h-[86vh] flex-col rounded-2xl sm:rounded-3xl border-2 sm:border-3 border-[var(--gold)] bg-[#160204] text-white shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Modal - Cố định trên đỉnh (shrink-0) */}
