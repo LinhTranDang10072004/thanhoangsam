@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { useRef } from "react";
@@ -28,9 +28,9 @@ export default function Hero() {
         loop
         playsInline
         className="absolute inset-0 w-full h-full object-cover"
-        src="/images/1790691441845_2251207849705082306_2251207849705082306.mp4"
+        src="/images/nguon-goc-chung-nhan-1.mp4"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/40" />
 
       {!reduce &&
         particles.map((p, i) => (
@@ -94,22 +94,17 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="mt-10 flex w-full gap-3 overflow-x-auto pb-4 md:pb-0 [&::-webkit-scrollbar]:hidden"
+            className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-[var(--gold-light)]"
           >
-            {[
-              "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
-              "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg",
-              "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg",
-              "/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg",
-              "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg"
-            ].map((src, idx) => (
-              <img
-                key={idx}
-                src={src}
-                alt={`Ảnh thực tế ${idx + 1}`}
-                className="h-16 w-24 shrink-0 object-cover rounded-lg opacity-80 hover:opacity-100 transition border border-[var(--gold)]/40"
-              />
-            ))}
+            <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
+              ✦ 100% Sâm Thật Núi Báo
+            </span>
+            <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
+              ✦ Chuẩn OCOP Vĩnh Lộc
+            </span>
+            <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
+              ✦ Truy Xuất Nguồn Gốc Từng Hộp
+            </span>
           </motion.div>
         </motion.div>
 
@@ -120,27 +115,30 @@ export default function Hero() {
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="float glass gold-border-glow relative flex h-96 w-72 flex-col items-center justify-between rounded-[2rem] p-4 md:h-[28rem] md:w-80 overflow-hidden group">
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/75 px-3 py-1 text-[11px] font-bold text-[var(--gold)] backdrop-blur-md border border-[var(--gold)]/40 shadow">
+            <div className="float glass gold-border-glow relative flex h-96 w-72 flex-col items-center justify-between rounded-[2rem] p-3 md:h-[28rem] md:w-80 overflow-hidden group">
+              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-[11px] font-bold text-[var(--gold)] backdrop-blur-md border border-[var(--gold)]/40 shadow">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                <span>Ảnh thật củ sâm Báo</span>
+                <span>Phim tư liệu sâm Báo</span>
               </div>
 
-              {/* Củ sâm thật nguyên gốc rễ hoa vàng */}
-              <div className="relative flex h-full w-full items-center justify-center pt-6">
-                <img
-                  src="/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg"
-                  alt="Sâm Báo tươi nguyên củ rễ hoa vàng"
-                  className="h-68 w-auto max-h-[85%] object-contain filter drop-shadow-[0_15px_30px_rgba(212,160,23,0.5)] md:h-80 transition-transform duration-500 group-hover:scale-105"
+              {/* Video tư liệu thực địa */}
+              <div className="relative flex h-full w-full items-center justify-center pt-8 overflow-hidden rounded-2xl">
+                <video
+                  src="/images/nguon-goc-chung-nhan-2.mp4"
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="h-full w-full object-cover rounded-2xl filter drop-shadow-[0_15px_30px_rgba(212,160,23,0.5)] transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
 
-              <div className="relative z-10 flex flex-col items-center pb-3">
-                <span className="text-gold-gradient font-black tracking-widest text-lg">SÂM BÁO NÚI BÁO</span>
-                <span className="text-[11px] font-semibold tracking-wider text-[var(--gold-light)]/85 uppercase mt-0.5">
+              <div className="relative z-10 flex flex-col items-center pb-2 pt-2">
+                <span className="text-gold-gradient font-black tracking-widest text-base">SÂM BÁO NÚI BÁO</span>
+                <span className="text-[10px] font-semibold tracking-wider text-[var(--gold-light)]/85 uppercase mt-0.5">
                   Đại Việt Đệ Nhất Danh Sâm
                 </span>
               </div>

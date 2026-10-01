@@ -49,7 +49,7 @@ export default function ChatWidget() {
     } catch {
       setMsgs((current) => [
         ...current,
-        { from: "bot", text: "Tôi chưa trả lời được lúc này. Bạn vui lòng gọi hotline 0918 168 888 hoặc xem trang Sản phẩm giúp tôi nhé!" },
+        { from: "bot", text: "Tôi chưa trả lời được lúc này. Bạn vui lòng gọi hotline 0359 821 856 hoặc xem trang Sản phẩm giúp tôi nhé!" },
       ]);
     } finally {
       setBusy(false);

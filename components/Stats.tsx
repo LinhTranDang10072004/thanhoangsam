@@ -13,7 +13,7 @@ export default function Stats() {
   return (
     <section className="relative py-16 text-white overflow-hidden">
       <video
-        src="/images/1790691442427_2251207849705082306_2251207849705082306.mp4"
+        src="/images/nguon-goc-chung-nhan-2.mp4"
         autoPlay
         muted
         loop

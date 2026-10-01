@@ -1,112 +1,77 @@
 "use client";
 
 import Reveal from "./Reveal";
-import { Play } from "lucide-react";
+import { Play, Sparkles, CheckCircle2 } from "lucide-react";
 
-const galleryItems = [
+const videoDocumentaries = [
   {
-    type: "image",
-    src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
-    aspectRatio: "aspect-[4/5]",
+    title: "Ký Sự Vườn Sâm Núi Báo – Vĩnh Lộc",
+    desc: "Thước phim tư liệu ghi lại thực địa vùng trồng sâm tự nhiên tại xã Vĩnh Hùng, điều kiện đất đai và khí hậu nuôi dưỡng củ sâm tiến vua.",
+    src: "/images/nguon-goc-chung-nhan-1.mp4",
+    badge: "PHIM TƯ LIỆU VÙNG TRỒNG",
   },
   {
-    type: "image",
-    src: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg",
-    aspectRatio: "aspect-square",
-  },
-  {
-    type: "image",
-    src: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg",
-    aspectRatio: "aspect-[3/4]",
-  },
-  {
-    type: "video",
-    src: "/images/1790691442241_2251207849705082306_2251207849705082306.mp4",
-    aspectRatio: "aspect-[9/16]",
-  },
-  {
-    type: "image",
-    src: "/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg",
-    aspectRatio: "aspect-square",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
-    aspectRatio: "aspect-[4/3]",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg",
-    aspectRatio: "aspect-square",
-  },
-  {
-    type: "video",
-    src: "/images/1790691442427_2251207849705082306_2251207849705082306.mp4",
-    aspectRatio: "aspect-[9/16]",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442069_2251207849705082306_2251207849705082306_38971826cc8331ac9d7612bd266f8633.jpg",
-    aspectRatio: "aspect-[3/4]",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442095_2251207849705082306_2251207849705082306_6d97ca5064721c8d9a1349080f124d78.jpg",
-    aspectRatio: "aspect-square",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
-    aspectRatio: "aspect-[4/5]",
-  },
-  {
-    type: "image",
-    src: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg",
-    aspectRatio: "aspect-square",
+    title: "Quy Trình Thu Hoạch & Chứng Nhận Nguồn Gốc",
+    desc: "Từng củ sâm được đào thủ công, phân loại và kiểm định hàm lượng Saponin trước khi niêm phong tem QR truy xuất nguồn gốc.",
+    src: "/images/nguon-goc-chung-nhan-2.mp4",
+    badge: "CHỨNG NHẬN CHẤT LƯỢNG",
   },
 ];
 
 export default function GallerySection() {
   return (
-    <section className="bg-[#1a0204] py-24">
-      <div className="mx-auto max-w-7xl px-4">
+    <section className="bg-[#1a0204] py-20 text-white relative overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 pointer-events-none" />
+
+      <div className="mx-auto max-w-6xl px-4 relative z-10">
         <Reveal>
           <div className="text-center mb-12">
-            <h2 className="text-gold-gradient text-center text-4xl font-extrabold md:text-5xl">Hình ảnh thực tế từ vườn sâm</h2>
+            <span className="rounded-full bg-[var(--gold)]/20 px-3.5 py-1 text-xs font-bold text-[var(--gold-light)] border border-[var(--gold)]/40 inline-flex items-center gap-1.5 mb-3">
+              <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
+              <span>THƯỚC PHIM TƯ LIỆU THỰC TẾ</span>
+            </span>
+            <h2 className="text-gold-gradient text-center text-3xl font-extrabold md:text-5xl uppercase">
+              Thước Phim Thực Tế Từ Vườn Sâm
+            </h2>
             <div className="gold-line mx-auto mt-4" />
-            <p className="mt-4 text-[var(--gold-light)]/80 max-w-2xl mx-auto">
-              Mọi hình ảnh được ghi lại trực tiếp tại vườn sâm Núi Báo, Vĩnh Lộc
+            <p className="mt-4 text-[var(--gold-light)]/85 max-w-2xl mx-auto text-xs sm:text-sm">
+              Mọi thước phim được ghi lại trực tiếp tại vùng trồng sâm Báo Núi Báo, xã Vĩnh Hùng, huyện Vĩnh Lộc, Thanh Hóa
             </p>
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {galleryItems.map((item, i) => (
-            <Reveal key={i} delay={i * 0.08}>
-              <div className={`relative overflow-hidden rounded-2xl w-full group ${item.aspectRatio}`}>
-                {item.type === "image" ? (
-                  <img
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {videoDocumentaries.map((item, i) => (
+            <Reveal key={i} delay={i * 0.15}>
+              <div className="rounded-3xl border-2 border-[var(--gold)]/60 bg-gradient-to-b from-[#2b0508] to-black p-5 shadow-2xl space-y-4 hover:border-[var(--gold)] transition group">
+                <div className="flex items-center justify-between">
+                  <span className="rounded-full bg-[var(--gold)]/20 px-3 py-0.5 text-[10px] font-bold text-[var(--gold-light)] border border-[var(--gold)]/40">
+                    {item.badge}
+                  </span>
+                  <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                    <CheckCircle2 size={13} />
+                    <span>Chứng nhận chính hãng</span>
+                  </span>
+                </div>
+
+                <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-[var(--gold)]/40 shadow-inner">
+                  <video
                     src={item.src}
-                    alt="Vườn sâm Núi Báo"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    controls
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
                   />
-                ) : (
-                  <>
-                    <video
-                      src={item.src}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                      className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <div className="bg-black/40 rounded-full p-3 backdrop-blur-sm shadow-xl">
-                        <Play className="w-8 h-8 text-white fill-white opacity-80" />
-                      </div>
-                    </div>
-                  </>
-                )}
+                </div>
+
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-[var(--gold-light)] group-hover:text-white transition">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-stone-300 leading-relaxed">
+                    {item.desc}
+                  </p>
+                </div>
               </div>
             </Reveal>
           ))}

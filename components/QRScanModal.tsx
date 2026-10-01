@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -40,40 +40,23 @@ interface ProductPreset {
   slug: string;
 }
 
-// Media gallery cho từng lô – ảnh thật + video từ /public/images/
+// Media gallery cho từng lô – video tư liệu thực tế từ /public/images/
 const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; thumb?: string }>> = {
   "SB-2026-0915": [
-    { type: "image", src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg" },
-    { type: "image", src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg" },
-    { type: "image", src: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg" },
-    { type: "image", src: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg" },
-    { type: "image", src: "/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg" },
-    { type: "video", src: "/images/1790691441845_2251207849705082306_2251207849705082306.mp4" },
-    { type: "video", src: "/images/1790691441875_2251207849705082306_2251207849705082306.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-1.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-2.mp4" },
   ],
   "SK-2026-0601": [
-    { type: "image", src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg" },
-    { type: "image", src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg" },
-    { type: "image", src: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg" },
-    { type: "image", src: "/images/1790691442069_2251207849705082306_2251207849705082306_38971826cc8331ac9d7612bd266f8633.jpg" },
-    { type: "image", src: "/images/1790691442095_2251207849705082306_2251207849705082306_6d97ca5064721c8d9a1349080f124d78.jpg" },
-    { type: "video", src: "/images/1790691441952_2251207849705082306_2251207849705082306.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-1.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-2.mp4" },
   ],
   "CS-2026-0802": [
-    { type: "image", src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg" },
-    { type: "image", src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg" },
-    { type: "image", src: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg" },
-    { type: "image", src: "/images/1790691442168_2251207849705082306_2251207849705082306_051a85d7dfd861e704025cb3efdbb529.jpg" },
-    { type: "image", src: "/images/1790691442192_2251207849705082306_2251207849705082306_261714ea9c39c974959288ba34fa0843.jpg" },
-    { type: "video", src: "/images/1790691442241_2251207849705082306_2251207849705082306.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-2.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-1.mp4" },
   ],
   "RS-2026-0718": [
-    { type: "image", src: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg" },
-    { type: "image", src: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg" },
-    { type: "image", src: "/images/1790691442289_2251207849705082306_2251207849705082306_ea1efa9505c05626aeb4942b73d4488a.jpg" },
-    { type: "image", src: "/images/1790691442314_2251207849705082306_2251207849705082306_9703c4794efb0550246cbeaf4930d7c6.jpg" },
-    { type: "image", src: "/images/1790691442355_2251207849705082306_2251207849705082306_17ee32629c1429b7a8ac65adf693c575.jpg" },
-    { type: "video", src: "/images/1790691442427_2251207849705082306_2251207849705082306.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-2.mp4" },
+    { type: "video", src: "/images/nguon-goc-chung-nhan-1.mp4" },
   ],
 };
 
@@ -612,7 +595,7 @@ export default function QRScanModal({
                   <div>
                     <p className="font-bold text-white">Không tìm thấy mã số này</p>
                     <p className="text-[11px] mt-0.5 text-stone-300">
-                      Vui lòng kiểm tra lại tem in trên vỏ hộp hoặc gọi hotline 0918 168 888 để được hỗ trợ.
+                      Vui lòng kiểm tra lại tem in trên vỏ hộp hoặc gọi hotline 0359 821 856 để được hỗ trợ.
                     </p>
                   </div>
                 </div>

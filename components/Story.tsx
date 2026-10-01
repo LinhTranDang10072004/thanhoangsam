@@ -42,36 +42,27 @@ export default function Story() {
           </div>
 
           <Reveal className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <img
-                src="/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"
-                alt="Sâm Báo"
-                className="aspect-square w-full object-cover rounded-2xl border border-[var(--gold)]/30 hover:scale-105 transition"
-              />
-              <img
-                src="/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg"
-                alt="Sâm Báo"
-                className="aspect-square w-full object-cover rounded-2xl border border-[var(--gold)]/30 hover:scale-105 transition"
-              />
-              <img
-                src="/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg"
-                alt="Sâm Báo"
-                className="aspect-square w-full object-cover rounded-2xl border border-[var(--gold)]/30 hover:scale-105 transition"
-              />
-              <img
-                src="/images/1790691441998_2251207849705082306_2251207849705082306_a8baaafcabe1bc4601e12128627d81b0.jpg"
-                alt="Sâm Báo"
-                className="aspect-square w-full object-cover rounded-2xl border border-[var(--gold)]/30 hover:scale-105 transition"
-              />
+            <div className="rounded-3xl border-2 border-[var(--gold)]/60 bg-gradient-to-b from-[#2b0508] to-black p-4 text-white shadow-2xl overflow-hidden">
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black shadow-inner border border-[var(--gold)]/30">
+                <video
+                  src="/images/nguon-goc-chung-nhan-1.mp4"
+                  muted
+                  autoPlay
+                  loop
+                  playsInline
+                  controls
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="pt-3">
+                <span className="rounded-full bg-[var(--gold)]/20 px-3 py-0.5 text-[10px] font-bold text-[var(--gold-light)] border border-[var(--gold)]/40">
+                  THƯỚC PHIM TƯ LIỆU SÂM TIẾN VUA
+                </span>
+                <p className="mt-1.5 text-xs text-stone-300 leading-relaxed">
+                  Hành trình 600 năm bảo tồn giống sâm Báo hoa vàng quý hiếm trên đỉnh Núi Báo, Vĩnh Lộc, Thanh Hóa.
+                </p>
+              </div>
             </div>
-            <video
-              src="/images/1790691441952_2251207849705082306_2251207849705082306.mp4"
-              muted
-              autoPlay
-              loop
-              playsInline
-              className="w-full rounded-2xl"
-            />
           </Reveal>
         </div>
       </div>

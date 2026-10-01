@@ -1,10 +1,10 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { findLot, lots, type Lot } from "@/lib/data";
-import { CheckCircle2, MapPin, Calendar, ShieldCheck, ArrowRight, AlertCircle, Search } from "lucide-react";
+import { CheckCircle2, MapPin, Calendar, ShieldCheck, ArrowRight, AlertCircle, Search, Sparkles } from "lucide-react";
 
 const certs = [
   { name: "COA – Kiểm nghiệm Dược chất", desc: "Hàm lượng Saponin đạt tiêu chuẩn cao nhất" },
@@ -83,6 +83,88 @@ export default function TraceLookup() {
             <p className="mt-1 text-xs text-stone-300">{cert.desc}</p>
           </div>
         ))}
+      </div>
+
+      {/* KHỐI 2 VIDEO TƯ LIỆU NGUỒN GỐC & CHỨNG NHẬN */}
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[var(--gold)]/20 px-3.5 py-1 text-xs font-bold text-[var(--red)] border border-[var(--gold)]/40">
+            <Sparkles className="h-4 w-4 text-[var(--gold)]" />
+            <span>THƯỚC PHIM TƯ LIỆU THỰC ĐỊA</span>
+          </div>
+          <h2 className="font-heading text-2xl sm:text-3xl font-black text-[var(--red)] uppercase">
+            Hành Trình Sâm Tiến Vua & Chứng Nhận Nguồn Gốc
+          </h2>
+          <p className="text-xs sm:text-sm text-stone-600 max-w-2xl mx-auto">
+            Ghi lại trực tiếp tại vùng trồng sâm Báo xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa và quy trình kiểm định chất lượng nghiêm ngặt
+          </p>
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2">
+          {/* Video 1 */}
+          <div className="rounded-3xl border-2 border-[var(--gold)]/70 bg-gradient-to-b from-[#2b0508] to-black p-4 sm:p-5 text-white shadow-2xl overflow-hidden flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="rounded-full bg-[var(--gold)]/20 px-3 py-0.5 text-[10px] font-bold text-[var(--gold-light)] border border-[var(--gold)]/40">
+                  VIDEO TƯ LIỆU 01
+                </span>
+                <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                  <CheckCircle2 size={13} />
+                  <span>Chuẩn thực địa 100%</span>
+                </span>
+              </div>
+
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-[var(--gold)]/40 shadow-inner">
+                <video
+                  src="/images/nguon-goc-chung-nhan-1.mp4"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              <h3 className="font-heading text-base font-bold text-[var(--gold-light)]">
+                Ký Sự Vùng Trồng Sâm Báo & Vườn Dược Liệu Núi Báo
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed">
+                Khám phá thung lũng trồng sâm tự nhiên tại xã Vĩnh Hùng, điều kiện thổ nhưỡng đất đỏ bazan và nguồn nước ngầm nuôi dưỡng cây sâm hoa vàng.
+              </p>
+            </div>
+          </div>
+
+          {/* Video 2 */}
+          <div className="rounded-3xl border-2 border-[var(--gold)]/70 bg-gradient-to-b from-[#2b0508] to-black p-4 sm:p-5 text-white shadow-2xl overflow-hidden flex flex-col justify-between">
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="rounded-full bg-[var(--gold)]/20 px-3 py-0.5 text-[10px] font-bold text-[var(--gold-light)] border border-[var(--gold)]/40">
+                  VIDEO TƯ LIỆU 02
+                </span>
+                <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1">
+                  <CheckCircle2 size={13} />
+                  <span>Chứng nhận OCOP & COA</span>
+                </span>
+              </div>
+
+              <div className="relative aspect-video w-full rounded-2xl overflow-hidden bg-black border border-[var(--gold)]/40 shadow-inner">
+                <video
+                  src="/images/nguon-goc-chung-nhan-2.mp4"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="h-full w-full object-cover"
+                />
+              </div>
+
+              <h3 className="font-heading text-base font-bold text-[var(--gold-light)]">
+                Quy Trình Thu Hái, Chế Biến & Chứng Nhận Chất Lượng
+              </h3>
+              <p className="text-xs text-stone-300 leading-relaxed">
+                Từng củ sâm thu hoạch thủ công, bảo tồn nguyên vẹn rễ và dưỡng chất Saponin trước khi đóng gói niêm phong tem truy xuất điện tử.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Khung tra cứu mã lô */}
