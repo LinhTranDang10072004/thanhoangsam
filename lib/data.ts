@@ -1,5 +1,5 @@
 export type Variant = { label: string; price: number };
-export type ProductType = "Sâm tươi" | "Sâm khô" | "Cao sâm" | "Rượu sâm";
+export type ProductType = "Sâm tươi" | "Sâm khô" | "Cao sâm" | "Rượu sâm" | "Trà hoa sâm" | "Sâm ngâm mật ong";
 
 export type Product = {
   slug: string;
@@ -17,7 +17,14 @@ export type Product = {
 
 export const audiences = ["Người cao tuổi", "Người tập thể thao", "Nam", "Nữ"] as const;
 export const needs = ["Tăng sức đề kháng", "Cải thiện giấc ngủ", "Bồi bổ cơ thể"] as const;
-export const productTypes: ProductType[] = ["Sâm tươi", "Sâm khô", "Cao sâm", "Rượu sâm"];
+export const productTypes: ProductType[] = [
+  "Sâm tươi",
+  "Sâm khô",
+  "Cao sâm",
+  "Rượu sâm",
+  "Trà hoa sâm",
+  "Sâm ngâm mật ong",
+];
 
 export const products: Product[] = [
   {
@@ -93,6 +100,42 @@ export const products: Product[] = [
       { label: "1 lít", price: 700000 },
     ],
   },
+  {
+    slug: "tra-hoa-sam",
+    name: "Trà hoa Sâm Báo",
+    type: "Trà hoa sâm",
+    audience: ["Người cao tuổi", "Nữ", "Nam"],
+    needs: ["Cải thiện giấc ngủ", "Bồi bổ cơ thể", "Tăng sức đề kháng"],
+    age: "Thu hoạch chính vụ hoa",
+    image: "/images/logo.png",
+    summary: "Bông hoa sâm Báo vàng 5 cánh sấy thăng hoa giữ trọn hương thơm thanh khiết và dược chất quý.",
+    detail:
+      "Hoa sâm Báo nở vào mùa thu trên sườn núi Báo, được thu hái thủ công vào sáng sớm khi còn đọng sương mai. Trà hoa sâm mang hương thơm dịu nhẹ, vị ngọt thanh mát, giúp thư thái tinh thần và dưỡng nhan tuyệt hảo.",
+    usage:
+      "Lấy 3–5 bông hoa sâm cho vào tách hoặc ấm trà, rót nước sôi 85°C–90°C hãm trong 5–7 phút. Có thể thêm kỷ tử hoặc chút mật ong rừng để tăng vị thơm ngon.",
+    variants: [
+      { label: "Hộp 50g", price: 290000 },
+      { label: "Hộp 100g", price: 550000 },
+    ],
+  },
+  {
+    slug: "sam-bao-mat-ong",
+    name: "Sâm Báo ngâm mật ong rừng",
+    type: "Sâm ngâm mật ong",
+    audience: ["Người cao tuổi", "Nữ", "Nam", "Người tập thể thao"],
+    needs: ["Bồi bổ cơ thể", "Tăng sức đề kháng", "Cải thiện giấc ngủ"],
+    age: "3 năm tuổi",
+    image: "/images/logo.png",
+    summary: "Những lát sâm Báo tươi hòa quyện cùng mật ong rừng nguyên chất, vị ngọt thanh bổ dưỡng cho mọi nhà.",
+    detail:
+      "Sâm Báo tươi sau khi làm sạch được thái lát mỏng đều tay và ngâm ủ cùng mật ong rừng hoa rừng tự nhiên. Tinh chất saponin kết hợp dưỡng chất mật ong giúp tăng cường sức đề kháng, bổ phế, giảm ho và phục hồi sinh lực nhanh chóng.",
+    usage:
+      "Mỗi ngày dùng 1–2 lát sâm ngậm tan hoặc pha 1–2 thìa mật ong sâm cùng 150ml nước ấm 40°C–50°C uống vào buổi sáng trước bữa ăn.",
+    variants: [
+      { label: "Hũ 280ml", price: 420000 },
+      { label: "Hũ 500ml", price: 750000 },
+    ],
+  },
 ];
 
 export type Lot = {
@@ -136,6 +179,22 @@ export const lots: Lot[] = [
     harvest: "18/07/2026",
     packed: "18/09/2026",
     note: "Chai đã niêm phong. Dữ liệu minh họa để thử tra cứu.",
+  },
+  {
+    code: "TH-2026-1001",
+    product: "Trà hoa Sâm Báo",
+    place: "Vườn hoa Núi Báo, Vĩnh Lộc, Thanh Hóa",
+    harvest: "20/09/2026",
+    packed: "22/09/2026",
+    note: "Hoa sâm sấy thăng hoa nguyên bông. Dữ liệu minh họa để thử tra cứu.",
+  },
+  {
+    code: "MO-2026-1002",
+    product: "Sâm Báo ngâm mật ong rừng",
+    place: "Xưởng ngâm ủ truyền thống Vĩnh Lộc",
+    harvest: "10/08/2026",
+    packed: "25/09/2026",
+    note: "Lát sâm tươi 3 năm tuổi ngâm mật ong rừng tự nhiên.",
   },
 ];
 

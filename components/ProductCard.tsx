@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { minPrice, vnd, type Product } from "@/lib/data";
@@ -14,9 +14,12 @@ export default function ProductCard({ p }: { p: Product }) {
         className="relative block h-60 w-full overflow-hidden bg-gradient-to-br from-stone-900 to-black"
       >
         <img
-          src={p.image || "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"}
+          src={p.image || "/images/logo.png"}
           alt={p.name}
-          className="h-full w-full object-cover object-center transition duration-500 group-hover:scale-105"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/images/logo.png";
+          }}
+          className="h-full w-full object-contain p-4 object-center transition duration-500 group-hover:scale-105"
         />
 
         {/* Badge 360° tinh tế ở góc ảnh (nhẹ nhàng, chuẩn phong cách shop cao cấp) */}

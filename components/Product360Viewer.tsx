@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -139,6 +139,64 @@ const productHotspots: Record<string, Hotspot[]> = {
       angle: 270,
       x: 50,
       y: 80,
+      z: 25,
+    },
+  ],
+  "tra-hoa-sam": [
+    {
+      id: "th-flower",
+      title: "Bông hoa sâm 5 cánh vàng",
+      desc: "Sấy thăng hoa công nghệ tiên tiến, giữ nguyên vẹn sắc vàng tươi và nhụy sâm thơm dịu.",
+      angle: 0,
+      x: 50,
+      y: 30,
+      z: 35,
+    },
+    {
+      id: "th-aroma",
+      title: "Hương thơm thanh khiết",
+      desc: "Giàu tinh dầu và saponin quý, vị ngọt thanh mát giúp an thần, ngủ sâu và đẹp da.",
+      angle: 120,
+      x: 50,
+      y: 55,
+      z: 25,
+    },
+    {
+      id: "th-pack",
+      title: "Hộp thiếc bảo quản chân không",
+      desc: "Chống ẩm và ánh sáng tuyệt đối, có tem truy xuất nguồn gốc mẻ sấy hoa sâm.",
+      angle: 240,
+      x: 52,
+      y: 75,
+      z: 20,
+    },
+  ],
+  "sam-bao-mat-ong": [
+    {
+      id: "mo-cap",
+      title: "Nắp thiếc vặn kín khí",
+      desc: "Màng niêm phong chống rò rỉ, bảo quản mật ong và lát sâm tươi trọn vẹn dưỡng chất.",
+      angle: 0,
+      x: 50,
+      y: 20,
+      z: 35,
+    },
+    {
+      id: "mo-honey",
+      title: "Mật ong rừng nguyên chất",
+      desc: "Mật ong hoa rừng tự nhiên sóng sánh hổ phách, giàu enzyme tăng cường đề kháng.",
+      angle: 110,
+      x: 50,
+      y: 50,
+      z: 30,
+    },
+    {
+      id: "mo-slice",
+      title: "Lát sâm tươi ngâm ngập mật",
+      desc: "Thái lát mỏng đều tay, thẩm thấu tinh chất mật ong, nhai bùi ngọt và bổ phế.",
+      angle: 230,
+      x: 50,
+      y: 75,
       z: 25,
     },
   ],

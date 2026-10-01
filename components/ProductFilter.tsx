@@ -51,12 +51,12 @@ export default function ProductFilter() {
   return (
     <div>
       {/* Bộ lọc loại sản phẩm */}
-      <div className="card mb-8 p-5 sm:p-6 shadow-md border border-[var(--gold)]/40">
+      <div className="card mb-8 p-5 sm:p-6 shadow-md border border-[var(--gold)]/40 text-center">
         <div>
-          <p className="mb-3 font-heading font-black text-base sm:text-lg text-[var(--red)] uppercase tracking-wide">
+          <p className="mb-3.5 font-heading font-black text-base sm:text-lg text-[var(--red)] uppercase tracking-wide text-center">
             Loại sản phẩm
           </p>
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-wrap justify-center gap-2.5">
             {productTypes.map((item) => (
               <Chip key={item} label={item} active={type === item} onClick={() => toggle("loai", item, type)} />
             ))}
@@ -64,18 +64,20 @@ export default function ProductFilter() {
         </div>
 
         {filtering && (
-          <button
-            type="button"
-            className="mt-4 inline-block font-bold text-xs sm:text-sm text-[var(--red)] hover:underline"
-            onClick={() => router.replace(pathname)}
-          >
-            ✕ Xóa bộ lọc (Xem tất cả)
-          </button>
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              className="mt-3 inline-block font-bold text-xs sm:text-sm text-[var(--red)] hover:underline"
+              onClick={() => router.replace(pathname)}
+            >
+              ✕ Xóa bộ lọc (Xem tất cả sản phẩm)
+            </button>
+          </div>
         )}
       </div>
 
-      <p className="mb-4 font-semibold text-sm sm:text-base text-[var(--red)]">
-        {list.length} sản phẩm{filtering ? ` thuộc danh mục "${type}"` : " chính hãng"}
+      <p className="mb-6 font-semibold text-sm sm:text-base text-[var(--red)] text-center">
+        {list.length} sản phẩm{filtering ? ` thuộc danh mục "${type}"` : " chính hãng Núi Báo"}
       </p>
 
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

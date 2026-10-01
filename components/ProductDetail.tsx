@@ -109,6 +109,46 @@ const usageGuides: Record<
       image: "/images/1790691442314_2251207849705082306_2251207849705082306_9703c4794efb0550246cbeaf4930d7c6.jpg",
     },
   ],
+  "tra-hoa-sam": [
+    {
+      step: "01",
+      title: "Định lượng hoa sâm",
+      desc: "Lấy từ 3–5 bông hoa sâm sấy thăng hoa cho vào ấm thủy tinh hoặc tách trà dung tích 250ml–350ml.",
+      image: "/images/1790691442095_2251207849705082306_2251207849705082306_6d97ca5064721c8d9a1349080f124d78.jpg",
+    },
+    {
+      step: "02",
+      title: "Hãm nước sôi 85°C–90°C",
+      desc: "Rót nước sôi tráng nhẹ 3 giây, sau đó rót nước sôi 85°C–90°C hãm trong 5–7 phút cho hoa hé nở tỏa hương.",
+      image: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg",
+    },
+    {
+      step: "03",
+      title: "Thưởng thức & Nhai hoa",
+      desc: "Thưởng trà từng ngụm ấm thanh ngọt dịu mát. Sau khi uống hết nước có thể nhai luôn bông hoa sâm bùi ngọt thơm mát.",
+      image: "/images/1790691442405_2251207849705082306_2251207849705082306_4a2e0e50c98be7e9d8e6e1b93d0f43ea.jpg",
+    },
+  ],
+  "sam-bao-mat-ong": [
+    {
+      step: "01",
+      title: "Khuấy đều hũ sâm",
+      desc: "Dùng thìa gỗ hoặc thìa sứ khuấy nhẹ để các lát sâm hòa quyện đều cùng mật ong rừng nguyên chất sánh mịn.",
+      image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
+    },
+    {
+      step: "02",
+      title: "Pha nước ấm 45°C",
+      desc: "Múc 1–2 thìa mật ong sâm kèm lát sâm pha với 150ml nước ấm 40°C–50°C (không dùng nước sôi làm giảm enzyme mật ong).",
+      image: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg",
+    },
+    {
+      step: "03",
+      title: "Thưởng thức buổi sáng",
+      desc: "Uống vào sáng sớm trước ăn hoặc khi mệt mỏi để bổ phế, nhuận tràng, tăng sức đề kháng và tràn đầy sinh lực cả ngày.",
+      image: "/images/1790691442168_2251207849705082306_2251207849705082306_051a85d7dfd861e704025cb3efdbb529.jpg",
+    },
+  ],
 };
 
 export default function ProductDetail({ product }: { product: Product }) {
@@ -155,12 +195,12 @@ export default function ProductDetail({ product }: { product: Product }) {
           ) : (
             <div className="relative flex h-[460px] sm:h-[520px] items-center justify-center rounded-3xl border-3 border-[var(--gold)] bg-black/80 shadow-2xl overflow-hidden">
               <img
-                src={
-                  product.image ||
-                  "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"
-                }
+                src={product.image || "/images/logo.png"}
                 alt={product.name}
-                className="h-full w-full object-cover object-center"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = "/images/logo.png";
+                }}
+                className="h-full w-full object-contain p-6 object-center"
               />
               <div className="absolute bottom-4 left-4 rounded-full border border-[var(--gold)]/40 bg-black/80 px-4 py-1.5 text-xs font-semibold text-[var(--gold-light)] backdrop-blur-md">
                 Ảnh chụp thực tế 100% tại vùng sâm Núi Báo
@@ -379,7 +419,10 @@ export default function ProductDetail({ product }: { product: Product }) {
                       <img
                         src={g.image}
                         alt={g.title}
-                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/images/logo.png";
+                        }}
+                        className="h-full w-full object-contain p-2 transition-transform duration-500 hover:scale-105"
                       />
                       <span className="absolute top-2.5 left-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--red)] text-white font-mono text-xs font-black shadow-md border border-[var(--gold)]">
                         {g.step}
