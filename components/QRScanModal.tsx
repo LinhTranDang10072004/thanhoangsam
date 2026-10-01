@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
@@ -43,7 +43,7 @@ interface ProductPreset {
 // Media gallery cho từng lô – ảnh thật + video từ /public/images/
 const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; thumb?: string }>> = {
   "SB-2026-0915": [
-    { type: "image", src: "/images/sam-bao-tuoi.jpg" },
+    { type: "image", src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg" },
     { type: "image", src: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg" },
     { type: "image", src: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg" },
     { type: "image", src: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg" },
@@ -52,7 +52,7 @@ const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; 
     { type: "video", src: "/images/1790691441875_2251207849705082306_2251207849705082306.mp4" },
   ],
   "SK-2026-0601": [
-    { type: "image", src: "/images/sam-bao-kho.jpg" },
+    { type: "image", src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg" },
     { type: "image", src: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg" },
     { type: "image", src: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg" },
     { type: "image", src: "/images/1790691442069_2251207849705082306_2251207849705082306_38971826cc8331ac9d7612bd266f8633.jpg" },
@@ -60,7 +60,7 @@ const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; 
     { type: "video", src: "/images/1790691441952_2251207849705082306_2251207849705082306.mp4" },
   ],
   "CS-2026-0802": [
-    { type: "image", src: "/images/cao-sam-bao.jpg" },
+    { type: "image", src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg" },
     { type: "image", src: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg" },
     { type: "image", src: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg" },
     { type: "image", src: "/images/1790691442168_2251207849705082306_2251207849705082306_051a85d7dfd861e704025cb3efdbb529.jpg" },
@@ -68,7 +68,7 @@ const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; 
     { type: "video", src: "/images/1790691442241_2251207849705082306_2251207849705082306.mp4" },
   ],
   "RS-2026-0718": [
-    { type: "image", src: "/images/ruou-sam-bao.jpg" },
+    { type: "image", src: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg" },
     { type: "image", src: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg" },
     { type: "image", src: "/images/1790691442289_2251207849705082306_2251207849705082306_ea1efa9505c05626aeb4942b73d4488a.jpg" },
     { type: "image", src: "/images/1790691442314_2251207849705082306_2251207849705082306_9703c4794efb0550246cbeaf4930d7c6.jpg" },
@@ -78,17 +78,17 @@ const lotMediaMap: Record<string, Array<{ type: "image" | "video"; src: string; 
 };
 
 const lotExtras: Record<string, { sku: string; saponin: string; image: string; slug: string }> = {
-  "SB-2026-0915": { sku: "THS-ST-01", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/sam-bao-tuoi.jpg", slug: "sam-bao-tuoi" },
-  "SK-2026-0601": { sku: "THS-SK-02", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/sam-bao-kho.jpg", slug: "sam-bao-kho" },
-  "CS-2026-0802": { sku: "THS-CS-03", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/cao-sam-bao.jpg", slug: "cao-sam-bao" },
-  "RS-2026-0718": { sku: "THS-RS-04", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/ruou-sam-bao.jpg", slug: "ruou-sam-bao" },
+  "SB-2026-0915": { sku: "THS-ST-01", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg", slug: "sam-bao-tuoi" },
+  "SK-2026-0601": { sku: "THS-SK-02", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg", slug: "sam-bao-kho" },
+  "CS-2026-0802": { sku: "THS-CS-03", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg", slug: "cao-sam-bao" },
+  "RS-2026-0718": { sku: "THS-RS-04", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg", slug: "ruou-sam-bao" },
 };
 
 const productPresets: ProductPreset[] = [
-  { name: "Sâm Báo Tươi Nguyên Củ (Hộp 1kg)", sku: "THS-ST-01", lotCode: "SB-2026-0915", harvest: "15/09/2026", packed: "16/09/2026", place: "Đỉnh núi Báo, xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/sam-bao-tuoi.jpg", slug: "sam-bao-tuoi" },
-  { name: "Sâm Báo Khô Thái Lát Thượng Hạng (Hộp 500g)", sku: "THS-SK-02", lotCode: "SK-2026-0601", harvest: "01/06/2026", packed: "05/06/2026", place: "Xưởng sấy thăng hoa chân không Vĩnh Lộc", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/sam-bao-kho.jpg", slug: "sam-bao-kho" },
-  { name: "Cao Sâm Báo Hoàng Triều (Hũ 200g)", sku: "THS-CS-03", lotCode: "CS-2026-0802", harvest: "02/08/2026", packed: "10/08/2026", place: "Khu chế biến sâu dược liệu Núi Báo", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/cao-sam-bao.jpg", slug: "cao-sam-bao" },
-  { name: "Rượu Sâm Báo Hoàng Gia (Bình 2 Lít)", sku: "THS-RS-04", lotCode: "RS-2026-0718", harvest: "18/07/2026", packed: "22/07/2026", place: "Hầm ủ rượu truyền thống Vĩnh Lộc", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/ruou-sam-bao.jpg", slug: "ruou-sam-bao" },
+  { name: "Sâm Báo Tươi Nguyên Củ (Hộp 1kg)", sku: "THS-ST-01", lotCode: "SB-2026-0915", harvest: "15/09/2026", packed: "16/09/2026", place: "Đỉnh núi Báo, xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa", saponin: "18.4 mg/g (Dược điển loại 1)", image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg", slug: "sam-bao-tuoi" },
+  { name: "Sâm Báo Khô Thái Lát Thượng Hạng (Hộp 500g)", sku: "THS-SK-02", lotCode: "SK-2026-0601", harvest: "01/06/2026", packed: "05/06/2026", place: "Xưởng sấy thăng hoa chân không Vĩnh Lộc", saponin: "17.2 mg/g (Sấy lạnh chân không)", image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg", slug: "sam-bao-kho" },
+  { name: "Cao Sâm Báo Hoàng Triều (Hũ 200g)", sku: "THS-CS-03", lotCode: "CS-2026-0802", harvest: "02/08/2026", packed: "10/08/2026", place: "Khu chế biến sâu dược liệu Núi Báo", saponin: "32.8 mg/g (Cô đặc 72 giờ)", image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg", slug: "cao-sam-bao" },
+  { name: "Rượu Sâm Báo Hoàng Gia (Bình 2 Lít)", sku: "THS-RS-04", lotCode: "RS-2026-0718", harvest: "18/07/2026", packed: "22/07/2026", place: "Hầm ủ rượu truyền thống Vĩnh Lộc", saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)", image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg", slug: "ruou-sam-bao" },
 ];
 
 // ─── Gallery Component ───────────────────────────────────────────────

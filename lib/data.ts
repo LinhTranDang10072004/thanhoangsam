@@ -27,7 +27,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nam", "Nữ"],
     needs: ["Tăng sức đề kháng", "Bồi bổ cơ thể"],
     age: "2 năm tuổi",
-    image: "/images/sam-bao-tuoi.jpg",
+    image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
     summary: "Củ sâm Báo tươi, hoa vàng, thu tại núi Báo. Dùng nấu canh, hãm nước hoặc thái mỏng.",
     detail:
       "Sâm mọc tự nhiên trên núi Báo nên người dân gọi là sâm Báo. Củ tươi giữ mùi thơm đặc trưng, phù hợp nhà có người lớn tuổi muốn bồi bổ bữa ăn hằng ngày.",
@@ -46,7 +46,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nam", "Nữ"],
     needs: ["Bồi bổ cơ thể", "Cải thiện giấc ngủ"],
     age: "4 năm tuổi",
-    image: "/images/sam-bao-kho.jpg",
+    image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
     summary: "Củ thái lát, sấy khô, dễ bảo quản và sắc nước dùng dần.",
     detail:
       "Lát sâm khô từ củ 4 năm tuổi, đóng túi kín. Phù hợp nhà xa muốn cất trữ vài tháng mà không phải dùng hết củ tươi ngay.",
@@ -64,7 +64,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nữ"],
     needs: ["Cải thiện giấc ngủ", "Bồi bổ cơ thể"],
     age: "3 năm tuổi",
-    image: "/images/cao-sam-bao.jpg",
+    image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
     summary: "Cao cô đặc từ củ sâm Báo, tiện pha với nước ấm mỗi ngày.",
     detail:
       "Cao được nấu từ củ 3 năm tuổi, đóng hũ thủy tinh. Vị đậm, dễ chia liều hơn củ tươi, hợp người muốn dùng đều mà không phải chế biến lâu.",
@@ -82,7 +82,7 @@ export const products: Product[] = [
     audience: ["Nam", "Người tập thể thao"],
     needs: ["Tăng sức đề kháng"],
     age: "3 năm tuổi",
-    image: "/images/ruou-sam-bao.jpg",
+    image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
     summary: "Rượu ngâm củ sâm Báo, dành cho người trưởng thành.",
     detail:
       "Chai rượu ngâm từ củ sâm Báo 3 năm tuổi, niêm phong và gắn mã lô. Vị ấm, thường được dùng ít sau bữa tối.",

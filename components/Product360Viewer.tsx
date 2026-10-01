@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useRef, useEffect } from "react";
 import {
@@ -531,8 +531,8 @@ export default function Product360Viewer({ product }: { product: Product }) {
 function renderYamahaVisual(product: Product) {
   const isSamTuoi = product.slug === "sam-bao-tuoi";
   const imgSrc = isSamTuoi
-    ? "/images/sam-bao-tuoi-cutout.png"
-    : product.image || "/images/sam-bao-tuoi.jpg";
+    ? "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg"
+    : product.image || "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg";
 
   return (
     <div className="relative flex flex-col items-center justify-center">

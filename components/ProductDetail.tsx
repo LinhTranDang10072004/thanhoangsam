@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -29,7 +29,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           ) : (
             <div className="relative flex h-[460px] sm:h-[520px] items-center justify-center rounded-3xl border-3 border-[var(--gold)] bg-black/80 shadow-2xl overflow-hidden">
               <img
-                src={product.image || "/images/sam-bao-tuoi.jpg"}
+                src={product.image || "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"}
                 alt={product.name}
                 className="h-full w-full object-cover object-center"
               />

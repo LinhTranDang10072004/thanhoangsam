@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
@@ -9,21 +9,21 @@ const lines = [
     name: "Sâm tươi & khô",
     desc: "Củ sâm hoa vàng thu hoạch tháng 9–12, tươi nguyên vị hoặc thái lát sấy khô.",
     href: "/san-pham/sam-bao-tuoi",
-    image: "/images/sam-bao-tuoi.jpg",
+    image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
     hoverImage: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
   },
   {
     name: "Cao Sâm Báo",
     desc: "Nấu cô đặc thủ công, tiện dùng mỗi ngày.",
     href: "/san-pham/cao-sam-bao",
-    image: "/images/cao-sam-bao.jpg",
+    image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
     hoverImage: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
   },
   {
     name: "Rượu Sâm Báo",
     desc: "Ngâm ủ từ củ 3 năm tuổi, quà biếu trang trọng. Chỉ dành cho người từ đủ 18 tuổi.",
     href: "/san-pham/ruou-sam-bao",
-    image: "/images/ruou-sam-bao.jpg",
+    image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
     hoverImage: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
   },
 ];

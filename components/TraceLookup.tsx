@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
@@ -17,25 +17,25 @@ const lotExtras: Record<string, { sku: string; saponin: string; image: string; s
   "SB-2026-0915": {
     sku: "THS-ST-01",
     saponin: "18.4 mg/g (Chuẩn Dược điển loại 1)",
-    image: "/images/sam-bao-tuoi.jpg",
+    image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
     slug: "sam-bao-tuoi",
   },
   "SK-2026-0601": {
     sku: "THS-SK-02",
     saponin: "17.2 mg/g (Sấy thăng hoa chân không)",
-    image: "/images/sam-bao-kho.jpg",
+    image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
     slug: "sam-bao-kho",
   },
   "CS-2026-0802": {
     sku: "THS-CS-03",
     saponin: "32.8 mg/g (Cô đặc 72 giờ)",
-    image: "/images/cao-sam-bao.jpg",
+    image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
     slug: "cao-sam-bao",
   },
   "RS-2026-0718": {
     sku: "THS-RS-04",
     saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)",
-    image: "/images/ruou-sam-bao.jpg",
+    image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
     slug: "ruou-sam-bao",
   },
 };

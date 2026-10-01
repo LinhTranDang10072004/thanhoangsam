@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useRef } from "react";
@@ -132,7 +132,7 @@ export default function Hero() {
               {/* Củ sâm thật nguyên gốc rễ hoa vàng */}
               <div className="relative flex h-full w-full items-center justify-center pt-6">
                 <img
-                  src="/images/sam-bao-tuoi-cutout.png"
+                  src="/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg"
                   alt="Sâm Báo tươi nguyên củ rễ hoa vàng"
                   className="h-68 w-auto max-h-[85%] object-contain filter drop-shadow-[0_15px_30px_rgba(212,160,23,0.5)] md:h-80 transition-transform duration-500 group-hover:scale-105"
                 />
