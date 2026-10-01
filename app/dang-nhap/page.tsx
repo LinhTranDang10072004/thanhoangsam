@@ -4,7 +4,7 @@ import { useState, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { ShieldCheck, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle } from "lucide-react";
+import { ShieldCheck, LogIn, Lock, Mail, Eye, EyeOff, AlertCircle, CheckCircle2 } from "lucide-react";
 
 function DangNhapContent() {
   const router = useRouter();
@@ -14,9 +14,9 @@ function DangNhapContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loginSuccess, setLoginSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-
   const supabase = createClient();
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -43,24 +43,26 @@ function DangNhapContent() {
       }
 
       if (data.user) {
-        // Kiểm tra vai trò trong bảng profiles để điều hướng chuẩn
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("role")
-          .eq("id", data.user.id)
-          .single();
+        setLoginSuccess(true);
 
-        if (profile?.role === "admin") {
-          router.push(redirectUrl || "/admin");
-        } else {
-          router.push(redirectUrl || "/tai-khoan");
+        // Lấy role để xác định điểm đến
+        let target = redirectUrl;
+        if (!target) {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("role")
+            .eq("id", data.user.id)
+            .single();
+
+          target = profile?.role === "admin" ? "/admin" : "/tai-khoan";
         }
-        router.refresh();
+
+        // Chuyển hướng trực tiếp giúp cookie được nạp đầy đủ và loại bỏ hoàn toàn delay
+        window.location.href = target;
       }
     } catch (err: unknown) {
       setErrorMsg("Có lỗi xảy ra trong quá trình đăng nhập. Vui lòng thử lại sau.");
       console.error(err);
-    } finally {
       setLoading(false);
     }
   };
@@ -81,6 +83,14 @@ function DangNhapContent() {
             Hệ thống quản lý & tài khoản khách hàng Thanh Hoàng Sâm
           </p>
         </div>
+
+        {/* Thông báo thành công */}
+        {loginSuccess && (
+          <div className="mt-6 flex items-center gap-2.5 rounded-xl border border-emerald-500/50 bg-emerald-950/60 p-3.5 text-xs text-emerald-200 animate-in fade-in">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
+            <p className="font-bold">Đăng nhập thành công! Đang chuyển hướng...</p>
+          </div>
+        )}
 
         {/* Thông báo lỗi */}
         {errorMsg && (

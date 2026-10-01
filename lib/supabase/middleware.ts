@@ -6,6 +6,17 @@ export async function updateSession(request: NextRequest) {
     request,
   });
 
+  const path = request.nextUrl.pathname;
+
+  // Tối ưu tốc độ: Chỉ kiểm tra Auth khi truy cập các trang nhạy cảm
+  const isProtected = path.startsWith("/admin") || path.startsWith("/tai-khoan");
+  const isAuthPage = path === "/dang-nhap" || path === "/dang-ky";
+
+  // Nếu là các trang xem sản phẩm, trang chủ, nguồn gốc... thì trả về ngay lập tức (0ms delay)
+  if (!isProtected && !isAuthPage) {
+    return supabaseResponse;
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -32,8 +43,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const path = request.nextUrl.pathname;
-
   // 1. Bảo vệ khu vực ADMIN (/admin)
   if (path.startsWith("/admin")) {
     if (!user) {
@@ -43,7 +52,12 @@ export async function updateSession(request: NextRequest) {
       return NextResponse.redirect(url);
     }
 
-    // Kiểm tra role admin trong bảng profiles
+    // Kiểm tra nhanh trong user_metadata trước để không cần query database nếu đã có
+    if (user.user_metadata?.role === "admin") {
+      return supabaseResponse;
+    }
+
+    // Kiểm tra role trong bảng profiles
     const { data: profile } = await supabase
       .from("profiles")
       .select("role")
@@ -69,15 +83,19 @@ export async function updateSession(request: NextRequest) {
   }
 
   // 3. Nếu đã đăng nhập mà lại vào /dang-nhap hoặc /dang-ky -> điều hướng theo role
-  if (user && (path === "/dang-nhap" || path === "/dang-ky")) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .single();
+  if (user && isAuthPage) {
+    let role = user.user_metadata?.role;
+    if (!role) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+      role = profile?.role;
+    }
 
     const url = request.nextUrl.clone();
-    if (profile?.role === "admin") {
+    if (role === "admin") {
       url.pathname = "/admin";
     } else {
       url.pathname = "/tai-khoan";
