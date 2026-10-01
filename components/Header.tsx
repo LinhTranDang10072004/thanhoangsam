@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Menu, Phone, ShoppingCart, X, QrCode } from "lucide-react";
+import { Menu, Phone, ShoppingCart, X, QrCode, User as UserIcon, ShieldCheck } from "lucide-react";
 import { nav, site } from "@/lib/site";
 import { useCart } from "./CartProvider";
+import { useAuth } from "./AuthProvider";
 import QRScanModal from "./QRScanModal";
 
 function isCurrent(path: string, href: string) {
@@ -16,6 +17,7 @@ function isCurrent(path: string, href: string) {
 export default function Header() {
   const path = usePathname();
   const { count } = useCart();
+  const { user, profile } = useAuth();
   const [open, setOpen] = useState(false);
   const [ready, setReady] = useState(false);
   const [showQR, setShowQR] = useState(false);
@@ -87,13 +89,48 @@ export default function Header() {
               title="Tự tạo & tra cứu mã QR, xem mã sản phẩm và số lô"
             >
               <QrCode size={15} className="text-[var(--gold)] shrink-0" />
-              <span className="whitespace-nowrap">Mã QR & Số Lô</span>
+              <span className="whitespace-nowrap">Mã QR</span>
             </button>
+
+            {/* Nút Tài khoản / Đăng nhập / Quản trị */}
+            {user ? (
+              <div className="flex items-center gap-1.5 shrink-0">
+                {profile?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    className="inline-flex items-center gap-1 rounded-xl border border-amber-400 bg-amber-500/20 px-2.5 py-1.5 text-xs font-bold text-amber-300 shadow transition hover:bg-amber-500 hover:text-black whitespace-nowrap shrink-0"
+                    title="Trang Quản trị Hệ thống"
+                  >
+                    <ShieldCheck size={14} className="text-amber-400 shrink-0" />
+                    <span className="whitespace-nowrap hidden sm:inline">Quản trị</span>
+                  </Link>
+                )}
+                <Link
+                  href="/tai-khoan"
+                  className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
+                  title="Tài khoản cá nhân"
+                >
+                  <UserIcon size={14} className="text-[var(--gold)] shrink-0" />
+                  <span className="whitespace-nowrap max-w-[80px] truncate hidden md:inline">
+                    {profile?.full_name?.split(" ").pop() || "Tài khoản"}
+                  </span>
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/dang-nhap"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
+                title="Đăng nhập tài khoản"
+              >
+                <UserIcon size={14} className="text-[var(--gold)] shrink-0" />
+                <span className="whitespace-nowrap">Đăng nhập</span>
+              </Link>
+            )}
 
             {/* Nút Giỏ Hàng */}
             <Link href="/gio-hang" prefetch={true} className="btn-gold relative !px-3 !py-1.5 text-xs font-bold whitespace-nowrap shrink-0 flex items-center gap-1.5">
               <ShoppingCart size={15} className="shrink-0" />
-              <span className="whitespace-nowrap">Giỏ hàng</span>
+              <span className="whitespace-nowrap hidden sm:inline">Giỏ hàng</span>
               {ready && count > 0 && (
                 <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[11px] font-extrabold text-[var(--red)]">
                   {count}
@@ -128,6 +165,39 @@ export default function Header() {
               <QrCode size={18} />
               <span>Tra Cứu Mã QR & Số Lô</span>
             </button>
+
+            {/* Đăng nhập / Tài khoản trên mobile */}
+            {user ? (
+              <div className="flex gap-2 mb-2">
+                {profile?.role === "admin" && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-amber-400 bg-amber-500/20 py-2.5 text-xs font-bold text-amber-300"
+                  >
+                    <ShieldCheck size={16} />
+                    <span>Quản trị</span>
+                  </Link>
+                )}
+                <Link
+                  href="/tai-khoan"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 py-2.5 text-xs font-bold text-[var(--gold-light)]"
+                >
+                  <UserIcon size={16} />
+                  <span>Tài khoản ({profile?.full_name?.split(" ").pop() || "Tôi"})</span>
+                </Link>
+              </div>
+            ) : (
+              <Link
+                href="/dang-nhap"
+                onClick={() => setOpen(false)}
+                className="mb-2 flex w-full items-center justify-center gap-2 rounded-xl border border-[var(--gold)]/60 bg-black/40 py-2.5 text-xs font-bold text-[var(--gold-light)]"
+              >
+                <UserIcon size={16} />
+                <span>Đăng Nhập / Đăng Ký</span>
+              </Link>
+            )}
 
             {nav.map((item) => (
               <Link

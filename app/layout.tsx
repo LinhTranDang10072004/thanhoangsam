@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import { CartProvider } from "@/components/CartProvider";
+import { AuthProvider } from "@/components/AuthProvider";
 import { beVietnamLatin, beVietnamViet, playfair } from "@/lib/fonts";
 
 export const metadata: Metadata = {
@@ -32,12 +33,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${beVietnamLatin.variable} ${beVietnamViet.variable} ${playfair.variable}`}
     >
       <body className="flex min-h-screen flex-col">
-        <CartProvider>
-          <Header />
-          <main className="flex-1">{children}</main>
-          <Footer />
-          <ChatWidget />
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <Header />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ChatWidget />
+          </CartProvider>
+        </AuthProvider>
       </body>
     </html>
   );
