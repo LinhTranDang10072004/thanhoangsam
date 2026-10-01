@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -7,20 +7,146 @@ import { priceQuote, products, vnd, type Product } from "@/lib/data";
 import { useCart } from "./CartProvider";
 import ProductCard from "./ProductCard";
 import Product360Viewer from "./Product360Viewer";
-import { RotateCw, Eye, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  RotateCw,
+  Eye,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
+  FileText,
+  Utensils,
+  Award,
+  Clock,
+  HeartHandshake,
+  MapPin,
+  Check,
+  ArrowRight,
+  Info,
+} from "lucide-react";
+
+// Dữ liệu hướng dẫn cách dùng có hình ảnh minh họa chi tiết từng bước
+const usageGuides: Record<
+  string,
+  Array<{ step: string; title: string; desc: string; image: string }>
+> = {
+  "sam-bao-tuoi": [
+    {
+      step: "01",
+      title: "Rửa sạch & Sơ chế",
+      desc: "Dùng bàn chải lông mềm rửa nhẹ nhàng dưới vòi nước chảy để làm sạch lớp đất phù sa Núi Báo. Để ráo nước trên rổ tre.",
+      image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
+    },
+    {
+      step: "02",
+      title: "Thái lát hoặc Hầm canh",
+      desc: "Thái lát mỏng 1-2mm hãm nước sôi 85°C làm trà sâm, hoặc hầm trọn củ với gà ác, chim câu, nấm hương trong 45 - 60 phút.",
+      image: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg",
+    },
+    {
+      step: "03",
+      title: "Thưởng thức & Ngâm mật ong",
+      desc: "Dùng bát canh sâm ấm nóng bồi bổ cơ thể. Phần củ tươi còn lại có thể ngâm ngập mật ong rừng trong hũ thủy tinh dùng quanh năm.",
+      image: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg",
+    },
+  ],
+  "sam-bao-kho": [
+    {
+      step: "01",
+      title: "Định lượng lát sâm",
+      desc: "Lấy từ 3 đến 5 lát sâm sấy thăng hoa cho vào ấm trà hoặc bình giữ nhiệt cá nhân dung tích 300ml - 500ml.",
+      image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
+    },
+    {
+      step: "02",
+      title: "Hãm nước sôi 90°C",
+      desc: "Rót nước sôi tráng nhanh 5 giây, sau đó rót nước sôi 90°C - 95°C hãm 10 - 15 phút để hoạt chất saponin hòa tan trọn vẹn.",
+      image: "/images/1790691442045_2251207849705082306_2251207849705082306_8df163c6132ac12d701e8c1d5c6145fa.jpg",
+    },
+    {
+      step: "03",
+      title: "Uống trà & Nhai lát sâm",
+      desc: "Rót uống từng ngụm ấm thanh ngọt tự nhiên trong ngày. Sau khi nước nhạt, nhai nuốt cả bã lát sâm để hấp thu 100% dưỡng chất.",
+      image: "/images/1790691442069_2251207849705082306_2251207849705082306_38971826cc8331ac9d7612bd266f8633.jpg",
+    },
+  ],
+  "cao-sam-bao": [
+    {
+      step: "01",
+      title: "Lấy lượng cao chuẩn",
+      desc: "Mở nắp niêm phong, dùng muỗng gỗ hoặc muỗng sứ sạch múc khoảng 1 thìa cà phê nhỏ (tương đương 3 - 5g cao cô đặc).",
+      image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
+    },
+    {
+      step: "02",
+      title: "Hòa tan với nước ấm",
+      desc: "Khuấy đều cao trong 150ml - 200ml nước ấm 50°C - 60°C cho đến khi tan mịn hoàn toàn. Có thể thêm chút mật ong tùy sở thích.",
+      image: "/images/1790691442144_2251207849705082306_2251207849705082306_7c4ce215dbe2225f393b15647133cb84.jpg",
+    },
+    {
+      step: "03",
+      title: "Thời điểm dùng tốt nhất",
+      desc: "Uống vào buổi sáng sau ăn 30 phút hoặc đầu giờ chiều để nạp năng lượng tỉnh táo và tăng cường đề kháng suốt ngày dài.",
+      image: "/images/1790691442168_2251207849705082306_2251207849705082306_051a85d7dfd861e704025cb3efdbb529.jpg",
+    },
+  ],
+  "ruou-sam-bao": [
+    {
+      step: "01",
+      title: "Bảo quản & Lắc nhẹ",
+      desc: "Đặt bình rượu nơi thoáng mát tránh ánh nắng gắt. Trước khi rót có thể lắc nhẹ để tinh chất sâm hòa đều cùng rượu nếp ngâm truyền thống.",
+      image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
+    },
+    {
+      step: "02",
+      title: "Liều lượng chén nhỏ",
+      desc: "Rót 1 chén hạt mít nhỏ khoảng 20ml - 30ml dùng trong hoặc sau bữa ăn tối. Vị cay êm dịu, hậu ngọt đậm đà nơi cổ họng.",
+      image: "/images/1790691442289_2251207849705082306_2251207849705082306_ea1efa9505c05626aeb4942b73d4488a.jpg",
+    },
+    {
+      step: "03",
+      title: "Lưu ý an toàn",
+      desc: "Sản phẩm chỉ dành cho người từ đủ 18 tuổi. Tuyệt đối không dùng khi điều khiển phương tiện giao thông, đang mang thai hoặc cho con bú.",
+      image: "/images/1790691442314_2251207849705082306_2251207849705082306_9703c4794efb0550246cbeaf4930d7c6.jpg",
+    },
+  ],
+};
 
 export default function ProductDetail({ product }: { product: Product }) {
   const [vi, setVi] = useState(0);
   const [qty, setQty] = useState(1);
   const [viewMode, setViewMode] = useState<"360" | "standard">("360");
+  const [activeTab, setActiveTab] = useState<"usage" | "info" | "cert">("usage");
   const { add } = useCart();
   const router = useRouter();
-  const variant = product.variants[vi];
+  const variant = product.variants[vi] || product.variants[0];
   const quote = priceQuote(variant.price, qty);
   const related = products.filter((item) => item.slug !== product.slug).slice(0, 3);
 
+  // Lấy các bước dùng có ảnh minh họa
+  const currentGuide = usageGuides[product.slug] || [
+    {
+      step: "01",
+      title: "Chuẩn bị sản phẩm",
+      desc: product.summary || "Chuẩn bị sản phẩm sâm Báo chính hãng có tem truy xuất.",
+      image: product.image,
+    },
+    {
+      step: "02",
+      title: "Chế biến & Sử dụng",
+      desc: product.usage || "Sử dụng đúng liều lượng khuyến nghị hàng ngày.",
+      image: "/images/1790691441922_2251207849705082306_2251207849705082306_49add4d443a5310c1f040d1325d4d802.jpg",
+    },
+    {
+      step: "03",
+      title: "Bảo quản đúng cách",
+      desc: "Đậy kín nắp sau khi dùng, để nơi khô ráo, tránh ánh nắng trực tiếp.",
+      image: "/images/1790691441975_2251207849705082306_2251207849705082306_97f1219099e9b56dc9c0c7e8d40bec80.jpg",
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:py-12">
+      {/* ── KHỐI CHÍNH TRÊN: 2 CỘT ẢNH 360 & ĐẶT HÀNG ── */}
       <div className="grid items-start gap-8 lg:grid-cols-2">
         {/* CỘT TRÁI: KHUNG ẢNH / STUDIO 360 TỰ ĐỘNG CÓ SẴN */}
         <div>
@@ -29,7 +155,10 @@ export default function ProductDetail({ product }: { product: Product }) {
           ) : (
             <div className="relative flex h-[460px] sm:h-[520px] items-center justify-center rounded-3xl border-3 border-[var(--gold)] bg-black/80 shadow-2xl overflow-hidden">
               <img
-                src={product.image || "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"}
+                src={
+                  product.image ||
+                  "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg"
+                }
                 alt={product.name}
                 className="h-full w-full object-cover object-center"
               />
@@ -39,10 +168,9 @@ export default function ProductDetail({ product }: { product: Product }) {
             </div>
           )}
 
-          {/* DẢI THUMBNAIL CHUYỂN ĐỔI CHẾ ĐỘ XEM (CHỈN CHU, TINH TẾ) */}
+          {/* DẢI THUMBNAIL CHUYỂN ĐỔI CHẾ ĐỘ XEM */}
           <div className="mt-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              {/* Nút Thumbnail 360 */}
               <button
                 type="button"
                 onClick={() => setViewMode("360")}
@@ -56,7 +184,6 @@ export default function ProductDetail({ product }: { product: Product }) {
                 <span>Xoay 360° Studio</span>
               </button>
 
-              {/* Nút Thumbnail Ảnh thực tế */}
               <button
                 type="button"
                 onClick={() => setViewMode("standard")}
@@ -183,12 +310,281 @@ export default function ProductDetail({ product }: { product: Product }) {
         </div>
       </div>
 
-      <section className="card mt-12 p-6">
-        <h2 className="text-2xl font-extrabold text-[var(--red)]">Cách dùng</h2>
-        <p className="mt-2 text-stone-700 leading-relaxed">{product.usage}</p>
+      {/* ── KHỐI DƯỚI: THÔNG TIN SẢN PHẨM & CÁCH DÙNG KÈM HÌNH ẢNH MINH HỌA ── */}
+      <section className="mt-16 rounded-3xl border-2 border-[var(--gold)]/50 bg-gradient-to-b from-white via-amber-50/30 to-stone-50 p-6 sm:p-10 shadow-xl overflow-hidden">
+        {/* Thanh chuyển Tab sang trọng */}
+        <div className="flex border-b-2 border-stone-200 pb-2 gap-3 sm:gap-6 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("usage")}
+            className={`flex items-center gap-2 pb-3 font-heading text-sm sm:text-base font-black transition border-b-3 -mb-2.5 whitespace-nowrap ${
+              activeTab === "usage"
+                ? "border-[var(--red)] text-[var(--red)]"
+                : "border-transparent text-stone-500 hover:text-stone-900"
+            }`}
+          >
+            <Utensils className="h-4 w-4 text-[var(--gold)]" />
+            <span>Hướng Dẫn Cách Dùng (Kèm Hình Ảnh)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("info")}
+            className={`flex items-center gap-2 pb-3 font-heading text-sm sm:text-base font-black transition border-b-3 -mb-2.5 whitespace-nowrap ${
+              activeTab === "info"
+                ? "border-[var(--red)] text-[var(--red)]"
+                : "border-transparent text-stone-500 hover:text-stone-900"
+            }`}
+          >
+            <FileText className="h-4 w-4 text-[var(--gold)]" />
+            <span>Thông Tin Chi Tiết & Dược Tính</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("cert")}
+            className={`flex items-center gap-2 pb-3 font-heading text-sm sm:text-base font-black transition border-b-3 -mb-2.5 whitespace-nowrap ${
+              activeTab === "cert"
+                ? "border-[var(--red)] text-[var(--red)]"
+                : "border-transparent text-stone-500 hover:text-stone-900"
+            }`}
+          >
+            <ShieldCheck className="h-4 w-4 text-[var(--gold)]" />
+            <span>Nguồn Gốc & Tiêu Chuẩn OCOP</span>
+          </button>
+        </div>
+
+        {/* ═══ TAB 1: CÁCH DÙNG CÓ HÌNH ẢNH MINH HỌA ═══ */}
+        {activeTab === "usage" && (
+          <div className="mt-8 space-y-8 animate-in fade-in">
+            <div>
+              <h2 className="text-xl sm:text-2xl font-black text-[var(--red)] uppercase tracking-wide">
+                Quy Trình & Hướng Dẫn Sử Dụng Chuẩn Hoàng Cung
+              </h2>
+              <p className="mt-1 text-sm text-stone-600">
+                Để phát huy tối đa hàm lượng Saponin và các dược chất quý có trong sâm Báo
+              </p>
+            </div>
+
+            {/* 3 Thẻ Bước thực hiện có Ảnh minh họa thực tế */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {currentGuide.map((g) => (
+                <div
+                  key={g.step}
+                  className="rounded-2xl border-2 border-[var(--gold-light)] bg-white p-4 shadow-md hover:border-[var(--gold)] hover:shadow-xl transition flex flex-col justify-between"
+                >
+                  <div className="space-y-3">
+                    {/* Ảnh minh họa cho từng bước */}
+                    <div className="relative h-44 w-full rounded-xl overflow-hidden bg-black shadow-inner border border-stone-200">
+                      <img
+                        src={g.image}
+                        alt={g.title}
+                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                      />
+                      <span className="absolute top-2.5 left-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-[var(--red)] text-white font-mono text-xs font-black shadow-md border border-[var(--gold)]">
+                        {g.step}
+                      </span>
+                    </div>
+
+                    <h3 className="font-heading text-base font-bold text-[var(--red)]">
+                      {g.title}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-stone-600 leading-relaxed">
+                      {g.desc}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-2.5 border-t border-stone-100 flex items-center gap-1.5 text-[11px] font-bold text-emerald-700">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                    <span>Phương pháp chuẩn làng sâm Vĩnh Hùng</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Khung lời khuyên chuyên gia */}
+            <div className="rounded-2xl border border-[var(--gold)]/60 bg-gradient-to-r from-amber-50 to-orange-50 p-5 flex items-start gap-4 shadow-sm">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gold)] text-[#2b0508] shrink-0 font-bold">
+                💡
+              </div>
+              <div className="space-y-1 text-xs sm:text-sm text-stone-700">
+                <h4 className="font-bold text-stone-900 text-sm">
+                  Lời khuyên từ nghệ nhân dược liệu Thanh Hoàng Sâm:
+                </h4>
+                <p className="leading-relaxed">
+                  {product.usage ||
+                    "Nên dùng đều đặn vào buổi sáng hoặc đầu giờ chiều để cơ thể hấp thu dưỡng chất tốt nhất. Tránh dùng sát giờ đi ngủ đối với người nhạy cảm với sâm."}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══ TAB 2: MÔ TẢ CHI TIẾT & BẢNG THÔNG SỐ ═══ */}
+        {activeTab === "info" && (
+          <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8 animate-in fade-in items-start">
+            <div className="space-y-5">
+              <div>
+                <h3 className="text-lg sm:text-xl font-black text-[var(--red)] uppercase">
+                  Mô Tả & Dược Tính Thảo Mộc
+                </h3>
+                <p className="mt-2 text-sm text-stone-700 leading-relaxed">
+                  {product.detail}
+                </p>
+              </div>
+
+              {/* Đối tượng khuyên dùng */}
+              <div className="rounded-2xl border border-stone-200 bg-white p-5 space-y-3 shadow-sm">
+                <h4 className="font-bold text-sm text-[var(--red)] flex items-center gap-2">
+                  <HeartHandshake className="h-4 w-4 text-[var(--gold)]" />
+                  <span>Đối tượng sử dụng phù hợp:</span>
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {product.audience.map((a) => (
+                    <span
+                      key={a}
+                      className="rounded-lg bg-amber-100/70 px-3 py-1 text-xs font-semibold text-stone-800 border border-amber-200"
+                    >
+                      ✓ {a}
+                    </span>
+                  ))}
+                </div>
+
+                <h4 className="font-bold text-sm text-[var(--red)] pt-2 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-[var(--gold)]" />
+                  <span>Công dụng nổi bật:</span>
+                </h4>
+                <div className="flex flex-wrap gap-2">
+                  {product.needs.map((n) => (
+                    <span
+                      key={n}
+                      className="rounded-lg bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 border border-emerald-200"
+                    >
+                      ✦ {n}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Bảng thông số kỹ thuật chi tiết */}
+            <div className="rounded-2xl border-2 border-[var(--gold)]/40 bg-white p-6 shadow-md space-y-4">
+              <h3 className="font-heading text-base font-bold text-[var(--red)] uppercase pb-2 border-b border-stone-200 flex items-center gap-2">
+                <Info className="h-4 w-4 text-[var(--gold)]" />
+                <span>Bảng Thông Số Kỹ Thuật Sản Phẩm</span>
+              </h3>
+
+              <div className="divide-y divide-stone-100 text-xs sm:text-sm">
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Tên thương mại:</span>
+                  <span className="font-bold text-stone-900">{product.name}</span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Dòng sản phẩm:</span>
+                  <span className="font-bold text-[var(--red)]">{product.type}</span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Độ tuổi củ sâm:</span>
+                  <span className="font-bold text-stone-900">{product.age}</span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Vùng thu hái:</span>
+                  <span className="font-bold text-stone-900 text-right">
+                    Đỉnh Núi Báo, xã Vĩnh Hùng, Vĩnh Lộc, Thanh Hóa
+                  </span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Tiêu chuẩn kiểm nghiệm:</span>
+                  <span className="font-bold text-emerald-700">Dược điển Việt Nam loại 1 (COA)</span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Tem niêm phong:</span>
+                  <span className="font-bold text-stone-900">Mã QR truy xuất nguồn gốc từng hộp</span>
+                </div>
+                <div className="py-2.5 flex justify-between">
+                  <span className="text-stone-500">Quy cách đóng gói:</span>
+                  <span className="font-bold text-stone-900">
+                    {product.variants.map((v) => v.label).join(" • ")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ═══ TAB 3: BẢO CHỨNG NGUỒN GỐC & OCOP ═══ */}
+        {activeTab === "cert" && (
+          <div className="mt-8 space-y-6 animate-in fade-in">
+            <div>
+              <h3 className="text-lg sm:text-xl font-black text-[var(--red)] uppercase">
+                Bảo Chứng Nguồn Gốc Núi Báo & Chứng Nhận Quốc Gia
+              </h3>
+              <p className="mt-1 text-sm text-stone-600">
+                Mỗi sản phẩm Thanh Hoàng Sâm đều được kiểm định nghiêm ngặt từ vùng trồng hữu cơ đến xưởng chế biến sâu
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {[
+                {
+                  icon: "📜",
+                  title: "Chứng Thư COA",
+                  desc: "Kiểm nghiệm hàm lượng Saponin và 17 loại acid amin tự nhiên",
+                },
+                {
+                  icon: "🌿",
+                  title: "Tiêu Chuẩn VietGAP",
+                  desc: "Vùng trồng sâm hữu cơ không phân bón hóa học dưới chân núi Báo",
+                },
+                {
+                  icon: "🛡️",
+                  title: "Cục An Toàn Thực Phẩm",
+                  desc: "Giấy tiếp nhận đăng ký bản công bố sản phẩm hợp quy",
+                },
+                {
+                  icon: "🏆",
+                  title: "Chứng Nhận OCOP",
+                  desc: "Sản vật tinh hoa đặc sản truyền thống Vĩnh Lộc - Thanh Hóa",
+                },
+              ].map((c) => (
+                <div
+                  key={c.title}
+                  className="rounded-2xl border border-[var(--gold-light)] bg-white p-5 text-center shadow-sm space-y-2"
+                >
+                  <div className="text-3xl mb-1">{c.icon}</div>
+                  <h4 className="font-heading font-bold text-sm text-[var(--red)] uppercase">
+                    {c.title}
+                  </h4>
+                  <p className="text-xs text-stone-600">{c.desc}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="rounded-2xl border border-[var(--gold)]/40 bg-black/90 p-6 text-white flex flex-col sm:flex-row items-center justify-between gap-4">
+              <div className="space-y-1 text-center sm:text-left">
+                <h4 className="font-heading font-bold text-base text-[var(--gold-light)] uppercase">
+                  Kiểm tra số lô in trên vỏ hộp của bạn
+                </h4>
+                <p className="text-xs text-stone-300">
+                  Nhập mã số lô hoặc quét QR để đối chiếu ngày thu hái thực tế
+                </p>
+              </div>
+
+              <Link
+                href="/nguon-goc"
+                className="btn-gold !py-2.5 !px-5 text-xs font-bold shrink-0 flex items-center gap-1.5"
+              >
+                <span>Tra cứu nguồn gốc</span>
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        )}
       </section>
 
-      <section className="mt-14">
+      {/* ── SẢN PHẨM KHÁC ── */}
+      <section className="mt-16">
         <h2 className="section-title">Sản phẩm khác</h2>
         <div className="gold-line" />
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
