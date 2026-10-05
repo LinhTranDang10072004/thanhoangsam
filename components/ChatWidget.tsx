@@ -60,7 +60,7 @@ export default function ChatWidget() {
     <>
       {/* Khung cửa sổ Chat AI */}
       {open && (
-        <div className="fixed right-4 bottom-24 z-50 w-96 max-w-[92vw] overflow-hidden rounded-3xl border-3 border-[var(--gold)] bg-white shadow-2xl animate-in fade-in slide-in-from-bottom-5">
+        <div className="fixed right-3 sm:right-4 bottom-20 md:bottom-24 z-50 w-96 max-w-[94vw] overflow-hidden rounded-3xl border-3 border-[var(--gold)] bg-white shadow-2xl animate-in fade-in slide-in-from-bottom-5">
           {/* Header với Nhân vật củ sâm */}
           <div className="flex items-center justify-between bg-gradient-to-r from-[var(--red)] via-[var(--red-dark)] to-[#3a0a10] px-4 py-3 text-white">
             <div className="flex items-center gap-2.5">
@@ -178,7 +178,7 @@ export default function ChatWidget() {
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="group fixed right-4 bottom-6 z-50 flex items-center gap-2 rounded-full border-2 border-[var(--gold)] bg-gradient-to-r from-[var(--red)] to-[#4a0a10] p-1.5 pr-4 shadow-[0_8px_25px_rgba(155,17,30,0.45)] transition-all hover:scale-105 active:scale-95"
+        className="group fixed right-3 sm:right-4 bottom-18 md:bottom-6 z-50 flex items-center gap-2 rounded-full border-2 border-[var(--gold)] bg-gradient-to-r from-[var(--red)] to-[#4a0a10] p-1.5 pr-3.5 sm:pr-4 shadow-[0_8px_25px_rgba(155,17,30,0.45)] transition-all hover:scale-105 active:scale-95"
         aria-label={open ? "Đóng tư vấn" : "Mở tư vấn AI củ sâm"}
       >
         <div className="relative flex h-12 w-12 items-center justify-center rounded-full border border-[var(--gold)] bg-[#2a0508] shadow-inner">

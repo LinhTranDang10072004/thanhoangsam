@@ -193,7 +193,7 @@ export default function ProductDetail({ product }: { product: Product }) {
           {viewMode === "360" ? (
             <Product360Viewer product={product} />
           ) : (
-            <div className="relative flex h-[460px] sm:h-[520px] items-center justify-center rounded-3xl border-3 border-[var(--gold)] bg-black/80 shadow-2xl overflow-hidden">
+            <div className="relative flex h-[360px] sm:h-[460px] md:h-[520px] items-center justify-center rounded-3xl border-3 border-[var(--gold)] bg-black/80 shadow-2xl overflow-hidden">
               <img
                 src={product.image || "/images/logo.png"}
                 alt={product.name}
@@ -202,7 +202,7 @@ export default function ProductDetail({ product }: { product: Product }) {
                 }}
                 className="h-full w-full object-contain p-6 object-center"
               />
-              <div className="absolute bottom-4 left-4 rounded-full border border-[var(--gold)]/40 bg-black/80 px-4 py-1.5 text-xs font-semibold text-[var(--gold-light)] backdrop-blur-md">
+              <div className="absolute bottom-4 left-4 rounded-full border border-[var(--gold)]/40 bg-black/80 px-3 sm:px-4 py-1.5 text-[11px] sm:text-xs font-semibold text-[var(--gold-light)] backdrop-blur-md">
                 Ảnh chụp thực tế 100% tại vùng sâm Núi Báo
               </div>
             </div>
@@ -319,17 +319,17 @@ export default function ProductDetail({ product }: { product: Product }) {
           <p className="mt-5 text-3xl font-extrabold text-[var(--red)]">{vnd(quote.total)}</p>
           {quote.rate > 0 && <p className="text-xs line-through opacity-70">{vnd(quote.subtotal)}</p>}
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex gap-2.5 sm:gap-3">
             <button
               type="button"
-              className="btn-gold !py-3 !px-6 text-sm font-bold shadow"
+              className="btn-gold !py-3 !px-3 sm:!px-6 text-xs sm:text-sm font-bold shadow flex-1 text-center"
               onClick={() => add(product.slug, variant.label, qty)}
             >
               Thêm vào giỏ
             </button>
             <button
               type="button"
-              className="btn-red !py-3 !px-6 text-sm font-bold shadow"
+              className="btn-red !py-3 !px-3 sm:!px-6 text-xs sm:text-sm font-bold shadow flex-1 text-center"
               onClick={() => {
                 add(product.slug, variant.label, qty);
                 router.push("/gio-hang");
@@ -351,9 +351,9 @@ export default function ProductDetail({ product }: { product: Product }) {
       </div>
 
       {/* ── KHỐI DƯỚI: THÔNG TIN SẢN PHẨM & CÁCH DÙNG KÈM HÌNH ẢNH MINH HỌA ── */}
-      <section className="mt-16 rounded-3xl border-2 border-[var(--gold)]/50 bg-gradient-to-b from-white via-amber-50/30 to-stone-50 p-6 sm:p-10 shadow-xl overflow-hidden">
+      <section className="mt-12 sm:mt-16 rounded-3xl border-2 border-[var(--gold)]/50 bg-gradient-to-b from-white via-amber-50/30 to-stone-50 p-4 sm:p-6 md:p-10 shadow-xl overflow-hidden">
         {/* Thanh chuyển Tab sang trọng */}
-        <div className="flex border-b-2 border-stone-200 pb-2 gap-3 sm:gap-6 overflow-x-auto">
+        <div className="flex border-b-2 border-stone-200 pb-2 gap-3 sm:gap-6 overflow-x-auto no-scrollbar">
           <button
             type="button"
             onClick={() => setActiveTab("usage")}

@@ -248,7 +248,10 @@ export default function TraceLookup() {
                   <img
                     src={extra.image}
                     alt={lot.product}
-                    className="h-full w-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = "/images/logo.png";
+                    }}
+                    className="h-full w-full object-contain p-2"
                   />
                 </div>
               )}

@@ -33,20 +33,20 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--gold)]/40 bg-[var(--red-dark)]/90 shadow-lg backdrop-blur-md">
       {/* Thanh thông tin trên cùng */}
-      <div className="bg-black/25 text-xs text-[var(--gold-light)]">
-        <div className="mx-auto flex max-w-6xl flex-col gap-1 px-4 py-1.5 sm:flex-row sm:items-center sm:justify-between">
-          <span className="whitespace-nowrap">Đặc sản Vĩnh Lộc – Thanh Hóa • Giao hàng toàn quốc</span>
-          <a href={`tel:${site.phoneTel}`} className="inline-flex items-center justify-center gap-1 hover:text-white whitespace-nowrap">
-            <Phone size={13} /> Hotline: {site.phoneDisplay}
+      <div className="bg-black/30 text-[11px] sm:text-xs text-[var(--gold-light)]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-3 sm:px-4 py-1">
+          <span className="truncate">Sâm Báo Vĩnh Lộc • Đệ Nhất Danh Sâm</span>
+          <a href={`tel:${site.phoneTel}`} className="inline-flex items-center gap-1 hover:text-white shrink-0 font-bold ml-2">
+            <Phone size={11} /> <span className="hidden sm:inline">Hotline: </span>{site.phoneDisplay}
           </a>
         </div>
       </div>
 
-      {/* Thanh điều hướng chính - 1 dòng duy nhất, không rớt dòng */}
-      <div className="bg-[var(--red)]/80">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 lg:gap-4 px-3 sm:px-4 py-2.5">
+      {/* Thanh điều hướng chính */}
+      <div className="bg-[var(--red)]/85">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-2 px-3 sm:px-4 py-2 sm:py-2.5">
           {/* Logo thương hiệu */}
-          <Link href="/" prefetch={true} className="flex items-center gap-2.5 shrink-0 transition hover:opacity-95">
+          <Link href="/" prefetch={true} className="flex items-center gap-2 shrink-0 transition hover:opacity-95">
             <img
               src="/images/logo.png"
               alt="Thanh Hoàng Sâm Logo"
@@ -80,25 +80,25 @@ export default function Header() {
           </nav>
 
           {/* Cụm nút thao tác bên phải */}
-          <div className="flex items-center gap-2 shrink-0">
-            {/* Nút Mã QR & Số Lô */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            {/* Nút Mã QR & Số Lô - Ẩn trên mobile nhỏ để tránh chật chội */}
             <button
               type="button"
               onClick={() => setShowQR(true)}
-              className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow backdrop-blur-md transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
               title="Tự tạo & tra cứu mã QR, xem mã sản phẩm và số lô"
             >
               <QrCode size={15} className="text-[var(--gold)] shrink-0" />
               <span className="whitespace-nowrap">Mã QR</span>
             </button>
 
-            {/* Nút Tài khoản / Đăng nhập / Quản trị */}
+            {/* Nút Tài khoản / Đăng nhập - Thu gọn trên mobile */}
             {user ? (
               <div className="flex items-center gap-1.5 shrink-0">
                 {profile?.role === "admin" && (
                   <Link
                     href="/admin"
-                    className="inline-flex items-center gap-1 rounded-xl border border-amber-400 bg-amber-500/20 px-2.5 py-1.5 text-xs font-bold text-amber-300 shadow transition hover:bg-amber-500 hover:text-black whitespace-nowrap shrink-0"
+                    className="inline-flex items-center gap-1 rounded-xl border border-amber-400 bg-amber-500/20 px-2 sm:px-2.5 py-1.5 text-xs font-bold text-amber-300 shadow transition hover:bg-amber-500 hover:text-black whitespace-nowrap shrink-0"
                     title="Trang Quản trị Hệ thống"
                   >
                     <ShieldCheck size={14} className="text-amber-400 shrink-0" />
@@ -107,7 +107,7 @@ export default function Header() {
                 )}
                 <Link
                   href="/tai-khoan"
-                  className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
+                  className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
                   title="Tài khoản cá nhân"
                 >
                   <UserIcon size={14} className="text-[var(--gold)] shrink-0" />
@@ -119,7 +119,7 @@ export default function Header() {
             ) : (
               <Link
                 href="/dang-nhap"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/60 bg-black/40 px-2.5 py-1.5 text-xs font-bold text-[var(--gold-light)] shadow transition hover:bg-[var(--gold)] hover:text-[#3a0a10] whitespace-nowrap shrink-0"
                 title="Đăng nhập tài khoản"
               >
                 <UserIcon size={14} className="text-[var(--gold)] shrink-0" />
@@ -128,11 +128,11 @@ export default function Header() {
             )}
 
             {/* Nút Giỏ Hàng */}
-            <Link href="/gio-hang" prefetch={true} className="btn-gold relative !px-3 !py-1.5 text-xs font-bold whitespace-nowrap shrink-0 flex items-center gap-1.5">
+            <Link href="/gio-hang" prefetch={true} className="btn-gold relative !px-2.5 sm:!px-3 !py-1.5 text-xs font-bold whitespace-nowrap shrink-0 flex items-center gap-1.5">
               <ShoppingCart size={15} className="shrink-0" />
               <span className="whitespace-nowrap hidden sm:inline">Giỏ hàng</span>
               {ready && count > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[11px] font-extrabold text-[var(--red)]">
+                <span className="absolute -top-1.5 -right-1.5 grid h-5 min-w-5 place-items-center rounded-full bg-white px-1 text-[11px] font-extrabold text-[var(--red)] shadow">
                   {count}
                 </span>
               )}
@@ -141,12 +141,12 @@ export default function Header() {
             {/* Nút mở Menu Mobile */}
             <button
               type="button"
-              className="grid h-9 w-9 place-items-center rounded-xl text-white lg:hidden shrink-0"
+              className="grid h-9 w-9 place-items-center rounded-xl text-white lg:hidden shrink-0 border border-white/20 bg-black/20"
               aria-expanded={open}
               aria-label={open ? "Đóng menu" : "Mở menu"}
               onClick={() => setOpen((value) => !value)}
             >
-              {open ? <X size={22} /> : <Menu size={22} />}
+              {open ? <X size={20} /> : <Menu size={20} />}
             </button>
           </div>
         </div>

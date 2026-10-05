@@ -43,13 +43,13 @@ export default function Hero() {
           />
         ))}
 
-      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-12 px-4 py-20 md:grid-cols-2">
+      <div className="relative z-10 mx-auto grid w-full max-w-6xl items-center gap-8 lg:gap-12 px-4 py-12 sm:py-16 md:py-20 md:grid-cols-2">
         <motion.div style={{ y: yText, opacity: fade }}>
           <motion.p
             initial={reduce ? false : { opacity: 0, letterSpacing: "0.1em" }}
-            animate={{ opacity: 1, letterSpacing: "0.35em" }}
+            animate={{ opacity: 1, letterSpacing: "0.2em" }}
             transition={{ duration: 1.2 }}
-            className="text-sm font-semibold text-[var(--gold)]"
+            className="text-xs sm:text-sm font-semibold text-[var(--gold)]"
           >
             SÂM TIẾN VUA · NÚI BÁO
           </motion.p>
@@ -58,7 +58,7 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="mt-4 text-5xl leading-[1.1] font-extrabold md:text-7xl"
+            className="mt-3 text-3xl sm:text-5xl md:text-7xl leading-[1.15] font-extrabold"
           >
             Hồn sâm <span className="text-gold-gradient">Báo</span>
             <br /> Đất Thanh Hoá
@@ -68,7 +68,7 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="mt-6 max-w-lg text-lg text-[var(--gold-light)]/90 md:text-xl"
+            className="mt-4 max-w-lg text-sm sm:text-base md:text-lg text-[var(--gold-light)]/90 leading-relaxed"
           >
             Dược liệu quý từng dùng trong cung nhà Hồ. Trồng tại Vĩnh Lộc, có chứng nhận và truy xuất nguồn gốc từng lô.
           </motion.p>
@@ -77,14 +77,14 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.9 }}
-            className="mt-9 flex flex-wrap gap-4"
+            className="mt-6 sm:mt-8 flex flex-col sm:flex-row gap-3 sm:gap-4"
           >
-            <Link href="/san-pham" className="btn-gold">
+            <Link href="/san-pham" className="btn-gold text-center !py-3">
               Khám phá sản phẩm
             </Link>
             <Link
               href="/nguon-goc"
-              className="rounded-xl border border-[var(--gold)] px-6 py-3 font-bold text-[var(--gold)] transition hover:bg-[var(--gold)] hover:text-[var(--red-dark)]"
+              className="rounded-xl border border-[var(--gold)] px-6 py-3 font-bold text-[var(--gold)] text-center transition hover:bg-[var(--gold)] hover:text-[var(--red-dark)]"
             >
               Xem nguồn gốc
             </Link>
@@ -94,7 +94,7 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="mt-8 flex flex-wrap gap-2 text-xs font-semibold text-[var(--gold-light)]"
+            className="mt-6 sm:mt-8 flex flex-wrap gap-2 text-[11px] sm:text-xs font-semibold text-[var(--gold-light)]"
           >
             <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
               ✦ 100% Sâm Thật Núi Báo
@@ -108,14 +108,14 @@ export default function Hero() {
           </motion.div>
         </motion.div>
 
-        <motion.div style={{ y: yImg }} className="relative flex justify-center">
-          <div className="absolute inset-0 m-auto h-72 w-72 rounded-full bg-[var(--gold)]/20 blur-3xl md:h-96 md:w-96" />
+        <motion.div style={{ y: yImg }} className="relative flex justify-center mt-4 md:mt-0">
+          <div className="absolute inset-0 m-auto h-64 w-64 rounded-full bg-[var(--gold)]/20 blur-3xl sm:h-80 sm:w-80 md:h-96 md:w-96" />
           <motion.div
             initial={reduce ? false : { scale: 0.8, opacity: 0, rotate: -6 }}
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="float glass gold-border-glow relative flex h-96 w-72 flex-col items-center justify-between rounded-[2rem] p-3 md:h-[28rem] md:w-80 overflow-hidden group">
+            <div className="float glass gold-border-glow relative flex h-80 sm:h-96 w-68 sm:w-72 md:h-[28rem] md:w-80 flex-col items-center justify-between rounded-[2rem] p-3 overflow-hidden group shadow-2xl">
               <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-[11px] font-bold text-[var(--gold)] backdrop-blur-md border border-[var(--gold)]/40 shadow">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>

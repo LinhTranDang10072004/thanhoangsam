@@ -325,7 +325,7 @@ export default function Product360Viewer({ product }: { product: Product }) {
       {/* Khung sàn Studio 360 (Showroom Floor) - Thiết kế tối giản, sang trọng chuẩn shop quốc tế */}
       <div
         className={`relative w-full overflow-hidden rounded-3xl border-3 border-[var(--gold)]/80 bg-gradient-to-b from-[#240306] via-[#140103] to-[#0a0002] shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-all ${
-          isFullscreen ? "h-[88vh] max-w-5xl" : "h-[460px] sm:h-[520px]"
+          isFullscreen ? "h-[88vh] max-w-5xl" : "h-[360px] sm:h-[460px] md:h-[520px]"
         }`}
       >
         {/* Header HUD Tinh tế: Badge 360° & Góc độ */}

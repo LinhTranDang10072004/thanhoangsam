@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
+import BottomNav from "@/components/BottomNav";
 import { CartProvider } from "@/components/CartProvider";
 import { AuthProvider } from "@/components/AuthProvider";
 import { beVietnamLatin, beVietnamViet, playfair } from "@/lib/fonts";
@@ -32,13 +33,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="vi"
       className={`${beVietnamLatin.variable} ${beVietnamViet.variable} ${playfair.variable}`}
     >
-      <body className="flex min-h-screen flex-col">
+      <body className="flex min-h-screen flex-col overflow-x-hidden">
         <AuthProvider>
           <CartProvider>
             <Header />
-            <main className="flex-1">{children}</main>
+            <main className="flex-1 pb-16 md:pb-0">{children}</main>
             <Footer />
             <ChatWidget />
+            <BottomNav />
           </CartProvider>
         </AuthProvider>
       </body>

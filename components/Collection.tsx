@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import Link from "next/link";
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion";
@@ -49,15 +49,29 @@ function TiltCard({ l }: { l: (typeof lines)[number] }) {
         y.set(0);
       }}
       whileHover={reduce ? undefined : { scale: 1.03 }}
-      className="group relative h-96 w-full rounded-3xl overflow-hidden shadow-2xl gold-border-glow"
+      className="group relative h-80 sm:h-96 w-full rounded-3xl overflow-hidden shadow-2xl gold-border-glow bg-black/40"
     >
-      <img src={l.image} alt={l.name} className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500" />
-      <img src={l.hoverImage} alt={`${l.name} hover`} className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
-      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/80 to-transparent p-6 text-left">
-        <h3 className="text-gold-gradient text-2xl font-bold">{l.name}</h3>
-        <p className="mt-2 text-[var(--gold-light)]/85">{l.desc}</p>
-        <div className="mt-4">
-          <Link href={l.href} prefetch={true} className="btn-gold inline-block">
+      <img
+        src={l.image}
+        alt={l.name}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "/images/logo.png";
+        }}
+        className="absolute inset-0 h-full w-full object-cover transition-opacity duration-500"
+      />
+      <img
+        src={l.hoverImage}
+        alt={`${l.name} hover`}
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "/images/logo.png";
+        }}
+        className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+      />
+      <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-black/85 via-black/40 to-transparent p-5 sm:p-6 text-left">
+        <h3 className="text-gold-gradient text-xl sm:text-2xl font-bold">{l.name}</h3>
+        <p className="mt-1.5 text-xs sm:text-sm text-[var(--gold-light)]/85 leading-relaxed">{l.desc}</p>
+        <div className="mt-3.5">
+          <Link href={l.href} prefetch={true} className="btn-gold !py-2 !px-5 text-xs font-bold inline-block">
             Xem ngay
           </Link>
         </div>
@@ -68,13 +82,13 @@ function TiltCard({ l }: { l: (typeof lines)[number] }) {
 
 export default function Collection() {
   return (
-    <section className="bg-luxury py-24 text-white">
+    <section className="bg-luxury py-16 sm:py-24 text-white">
       <div className="mx-auto max-w-6xl px-4">
         <Reveal>
-          <h2 className="text-gold-gradient text-center text-4xl font-extrabold md:text-5xl">Bộ sưu tập Sâm Báo</h2>
-          <p className="mt-3 text-center text-[var(--gold-light)]/80">Ba cách thưởng thức tinh hoa sâm Việt</p>
+          <h2 className="text-gold-gradient text-center text-3xl sm:text-4xl font-extrabold md:text-5xl">Bộ sưu tập Sâm Báo</h2>
+          <p className="mt-2.5 text-center text-xs sm:text-sm text-[var(--gold-light)]/80">Ba cách thưởng thức tinh hoa sâm Việt</p>
         </Reveal>
-        <div className="mt-14 grid gap-8 md:grid-cols-3">
+        <div className="mt-10 sm:mt-14 grid gap-6 sm:gap-8 md:grid-cols-3">
           {lines.map((l, i) => (
             <Reveal key={l.name} delay={i * 0.15} className="h-full">
               <TiltCard l={l} />

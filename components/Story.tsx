@@ -21,22 +21,22 @@ export default function Story() {
     <section className="bg-[var(--cream)] py-24">
       <div className="mx-auto max-w-6xl px-4">
         <Reveal>
-          <h2 className="section-title !text-4xl text-center md:text-left">Vì sao gọi là &quot;Sâm Báo&quot;?</h2>
+          <h2 className="section-title !text-2xl sm:!text-4xl text-center md:text-left">Vì sao gọi là &quot;Sâm Báo&quot;?</h2>
           <div className="gold-line mx-auto md:mx-0" />
         </Reveal>
 
-        <div className="mt-12 grid gap-12 md:grid-cols-2 items-start">
-          <div ref={ref} className="relative pl-10">
-            <div className="absolute top-0 bottom-0 left-3 w-0.5 bg-[var(--gold-light)]" />
+        <div className="mt-8 sm:mt-12 grid gap-8 sm:gap-12 md:grid-cols-2 items-start">
+          <div ref={ref} className="relative pl-7 sm:pl-10">
+            <div className="absolute top-0 bottom-0 left-2.5 sm:left-3 w-0.5 bg-[var(--gold-light)]" />
             <motion.div
               style={reduce ? { scaleY: 1 } : { scaleY, transformOrigin: "top" }}
-              className="absolute top-0 bottom-0 left-3 w-0.5 bg-gradient-to-b from-[var(--gold)] to-[var(--red)]"
+              className="absolute top-0 bottom-0 left-2.5 sm:left-3 w-0.5 bg-gradient-to-b from-[var(--gold)] to-[var(--red)]"
             />
             {events.map((e, i) => (
-              <Reveal key={e.year} delay={i * 0.08} className="relative mb-12">
-                <span className="absolute top-1.5 -left-[2.15rem] h-4 w-4 rounded-full bg-[var(--red)] ring-4 ring-[var(--gold)]" />
-                <p className="text-xl font-extrabold text-[var(--red)]">{e.year}</p>
-                <p className="mt-1 text-lg">{e.text}</p>
+              <Reveal key={e.year} delay={i * 0.08} className="relative mb-8 sm:mb-12">
+                <span className="absolute top-1.5 -left-[1.7rem] sm:-left-[2.15rem] h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full bg-[var(--red)] ring-3 sm:ring-4 ring-[var(--gold)]" />
+                <p className="text-base sm:text-xl font-extrabold text-[var(--red)]">{e.year}</p>
+                <p className="mt-1 text-xs sm:text-base text-stone-700 leading-relaxed">{e.text}</p>
               </Reveal>
             ))}
           </div>
