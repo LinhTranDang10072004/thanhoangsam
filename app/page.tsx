@@ -12,8 +12,8 @@ import { products } from "@/lib/data";
 export default function Home() {
   return (
     <>
-      <Hero />
       <Marquee />
+      <Hero />
       <Collection />
 
       <section className="bg-[var(--cream)] py-24">

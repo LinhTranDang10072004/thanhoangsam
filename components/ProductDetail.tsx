@@ -239,12 +239,12 @@ export default function ProductDetail({ product }: { product: Product }) {
             </div>
 
             <Link
-              href="/trai-nghiem-3d"
+              href="/hinh-anh-thuc-te"
               prefetch={true}
               className="text-xs font-bold text-[var(--red)] hover:text-[var(--gold)] transition flex items-center gap-1"
             >
               <Sparkles className="h-3.5 w-3.5 text-[var(--gold)]" />
-              <span>Studio 3D toàn cảnh</span>
+              <span>Xem ảnh thực tế vườn sâm</span>
             </Link>
           </div>
         </div>

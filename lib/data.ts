@@ -34,7 +34,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nam", "Nữ"],
     needs: ["Tăng sức đề kháng", "Bồi bổ cơ thể"],
     age: "2 năm tuổi",
-    image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
+    image: "/images/1790868366520_2251207849705082306_2251207849705082306_12e9c0679cccb508ea80bd7c4771925b.jpg",
     summary: "Củ sâm Báo tươi, hoa vàng, thu tại núi Báo. Dùng nấu canh, hãm nước hoặc thái mỏng.",
     detail:
       "Sâm mọc tự nhiên trên núi Báo nên người dân gọi là sâm Báo. Củ tươi giữ mùi thơm đặc trưng, phù hợp nhà có người lớn tuổi muốn bồi bổ bữa ăn hằng ngày.",
@@ -53,7 +53,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nam", "Nữ"],
     needs: ["Bồi bổ cơ thể", "Cải thiện giấc ngủ"],
     age: "4 năm tuổi",
-    image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
+    image: "/images/1790868371239_2251207849705082306_2251207849705082306_833bcb60ad4056b1853e8e6988ea227b.jpg",
     summary: "Củ thái lát, sấy khô, dễ bảo quản và sắc nước dùng dần.",
     detail:
       "Lát sâm khô từ củ 4 năm tuổi, đóng túi kín. Phù hợp nhà xa muốn cất trữ vài tháng mà không phải dùng hết củ tươi ngay.",
@@ -71,7 +71,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nữ"],
     needs: ["Cải thiện giấc ngủ", "Bồi bổ cơ thể"],
     age: "3 năm tuổi",
-    image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
+    image: "/images/1790868367584_2251207849705082306_2251207849705082306_7dfa8c645fdaf56adc9af0c64b6e245b.jpg",
     summary: "Cao cô đặc từ củ sâm Báo, tiện pha với nước ấm mỗi ngày.",
     detail:
       "Cao được nấu từ củ 3 năm tuổi, đóng hũ thủy tinh. Vị đậm, dễ chia liều hơn củ tươi, hợp người muốn dùng đều mà không phải chế biến lâu.",
@@ -89,7 +89,7 @@ export const products: Product[] = [
     audience: ["Nam", "Người tập thể thao"],
     needs: ["Tăng sức đề kháng"],
     age: "3 năm tuổi",
-    image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
+    image: "/images/1790868361308_2251207849705082306_2251207849705082306_d3293c3e738aa15a56b43cc93588b4ec.jpg",
     summary: "Rượu ngâm củ sâm Báo, dành cho người trưởng thành.",
     detail:
       "Chai rượu ngâm từ củ sâm Báo 3 năm tuổi, niêm phong và gắn mã lô. Vị ấm, thường được dùng ít sau bữa tối.",
@@ -107,7 +107,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nữ", "Nam"],
     needs: ["Cải thiện giấc ngủ", "Bồi bổ cơ thể", "Tăng sức đề kháng"],
     age: "Thu hoạch chính vụ hoa",
-    image: "/images/logo.png",
+    image: "/images/1790868362572_2251207849705082306_2251207849705082306_85576a3603bc20c732216a21831ea08e.jpg",
     summary: "Bông hoa sâm Báo vàng 5 cánh sấy thăng hoa giữ trọn hương thơm thanh khiết và dược chất quý.",
     detail:
       "Hoa sâm Báo nở vào mùa thu trên sườn núi Báo, được thu hái thủ công vào sáng sớm khi còn đọng sương mai. Trà hoa sâm mang hương thơm dịu nhẹ, vị ngọt thanh mát, giúp thư thái tinh thần và dưỡng nhan tuyệt hảo.",
@@ -125,7 +125,7 @@ export const products: Product[] = [
     audience: ["Người cao tuổi", "Nữ", "Nam", "Người tập thể thao"],
     needs: ["Bồi bổ cơ thể", "Tăng sức đề kháng", "Cải thiện giấc ngủ"],
     age: "3 năm tuổi",
-    image: "/images/logo.png",
+    image: "/images/1790868372636_2251207849705082306_2251207849705082306_056f7e2751b3cd096b51624cd760c1d3.jpg",
     summary: "Những lát sâm Báo tươi hòa quyện cùng mật ong rừng nguyên chất, vị ngọt thanh bổ dưỡng cho mọi nhà.",
     detail:
       "Sâm Báo tươi sau khi làm sạch được thái lát mỏng đều tay và ngâm ủ cùng mật ong rừng hoa rừng tự nhiên. Tinh chất saponin kết hợp dưỡng chất mật ong giúp tăng cường sức đề kháng, bổ phế, giảm ho và phục hồi sinh lực nhanh chóng.",

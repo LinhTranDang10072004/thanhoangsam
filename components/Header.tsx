@@ -56,8 +56,8 @@ export default function Header() {
               <span className="font-heading text-sm sm:text-lg xl:text-xl font-black tracking-wider text-[var(--gold)] uppercase leading-tight drop-shadow-sm whitespace-nowrap">
                 THANH HOÀNG <span className="text-white">SÂM</span>
               </span>
-              <span className="text-[9px] font-semibold tracking-widest text-[var(--gold-light)] uppercase hidden xl:block whitespace-nowrap">
-                Đại Việt Đệ Nhất Danh Sâm
+              <span className="text-[9px] font-bold tracking-widest text-[var(--gold-light)] uppercase hidden xl:block whitespace-nowrap">
+                Tinh Hoa SÂM Báo Xứ Thanh
               </span>
             </div>
           </Link>

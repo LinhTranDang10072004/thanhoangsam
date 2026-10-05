@@ -10,17 +10,17 @@ import { beVietnamLatin, beVietnamViet, playfair } from "@/lib/fonts";
 
 export const metadata: Metadata = {
   title: {
-    default: "Thanh Hoàng Sâm – Sâm Báo Vĩnh Lộc chính gốc",
+    default: "Thanh Hoàng Sâm – Tinh Hoa SÂM Báo Xứ Thanh",
     template: "%s – Thanh Hoàng Sâm",
   },
-  description: "Sâm Báo Vĩnh Lộc, Thanh Hóa – có giấy chứng nhận, truy xuất nguồn gốc từng lô hàng.",
+  description: "Thanh Hoàng Sâm – Tinh Hoa SÂM Báo Xứ Thanh, có giấy chứng nhận, truy xuất nguồn gốc từng lô hàng.",
   icons: {
     icon: "/images/logo.png",
     apple: "/images/logo.png",
   },
   openGraph: {
-    title: "Thanh Hoàng Sâm – Sâm Báo Vĩnh Lộc chính gốc",
-    description: "Sâm Báo Vĩnh Lộc, Thanh Hóa. Giao hàng toàn quốc, tra cứu mã lô trên bao bì.",
+    title: "Thanh Hoàng Sâm – Tinh Hoa SÂM Báo Xứ Thanh",
+    description: "Thanh Hoàng Sâm – Tinh Hoa SÂM Báo Xứ Thanh. Giao hàng toàn quốc, tra cứu mã lô trên bao bì.",
     locale: "vi_VN",
     type: "website",
     images: [{ url: "/images/logo.png" }],

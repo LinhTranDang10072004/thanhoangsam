@@ -10,7 +10,7 @@ type Msg = { from: "bot" | "user"; text: string; links?: Advice["links"] };
 
 const greeting: Msg = {
   from: "bot",
-  text: "Chào bạn! Tôi là trợ lý AI Sâm Báo 🌿. Bạn cần tư vấn về cách dùng sâm bồi bổ sức khỏe, cải thiện giấc ngủ, hay tìm hiểu nguồn gốc núi Báo?",
+  text: "Kính chào Quý khách! Tôi là AI SÂM – Trợ lý SÂM TƯ VẤN của Thanh Hoàng Sâm 🌿. Tinh Hoa SÂM Báo Xứ Thanh xin kính chúc Quý khách an khang! Quý khách cần tư vấn về sản phẩm, cách dùng SÂM bồi bổ sức khỏe, hay tra cứu nguồn gốc?",
 };
 
 const quickQuestions = [
@@ -70,10 +70,14 @@ export default function ChatWidget() {
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
-                  <h4 className="font-extrabold text-[var(--gold-light)] leading-tight">Bé Sâm Báo AI</h4>
+                  <h4 className="font-extrabold text-[var(--gold-light)] leading-tight text-sm">
+                    AI SÂM – SÂM TƯ VẤN
+                  </h4>
                   <Sparkles className="h-3 w-3 text-amber-300" />
                 </div>
-                <p className="text-[11px] text-stone-200">Trợ lý am hiểu sâm • Đang trực tuyến</p>
+                <p className="text-[10px] text-stone-200">
+                  Thanh Hoàng Sâm • Tinh Hoa SÂM Báo Xứ Thanh
+                </p>
               </div>
             </div>
             <button
@@ -190,10 +194,10 @@ export default function ChatWidget() {
         </div>
         <div className="text-left">
           <p className="text-xs font-black uppercase tracking-wider text-[var(--gold-light)] flex items-center gap-1">
-            <span>Hỏi AI Sâm</span>
+            <span>AI SÂM</span>
             <Sparkles className="h-3 w-3 text-amber-300" />
           </p>
-          <p className="text-[10px] font-semibold text-stone-300">Tư vấn trực tiếp 24/7</p>
+          <p className="text-[10px] font-bold text-amber-300 uppercase tracking-tight">SÂM TƯ VẤN 24/7</p>
         </div>
       </button>
     </>

@@ -1,5 +1,6 @@
 export const site = {
   name: "Thanh Hoàng Sâm",
+  slogan: "Tinh Hoa SÂM Báo Xứ Thanh",
   phoneDisplay: "0359 821 856",
   phoneTel: "0359821856",
   email: "thanhhoangsam36@gmail.com",
@@ -13,6 +14,6 @@ export const nav = [
   { href: "/", label: "Trang chủ" },
   { href: "/san-pham", label: "Sản phẩm" },
   { href: "/nguon-goc", label: "Nguồn gốc & Chứng nhận" },
-  { href: "/trai-nghiem-3d", label: "Trải nghiệm 3D" },
+  { href: "/hinh-anh-thuc-te", label: "Hình ảnh thực tế" },
   { href: "/lien-he", label: "Liên hệ" },
 ];

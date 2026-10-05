@@ -16,7 +16,7 @@ export default function Footer() {
               {site.name}
             </p>
           </div>
-          <p className="mt-3">Sâm Báo Vĩnh Lộc – &quot;Đệ nhất danh sâm nước Nam&quot;</p>
+          <p className="mt-3 font-semibold text-[var(--gold-light)]">Thanh Hoàng Sâm – Tinh Hoa SÂM Báo Xứ Thanh</p>
           <p className="mt-3 text-sm leading-relaxed opacity-90">{site.disclaimer}</p>
         </div>
         <div>

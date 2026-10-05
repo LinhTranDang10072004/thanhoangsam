@@ -17,26 +17,38 @@ const lotExtras: Record<string, { sku: string; saponin: string; image: string; s
   "SB-2026-0915": {
     sku: "THS-ST-01",
     saponin: "18.4 mg/g (Chuẩn Dược điển loại 1)",
-    image: "/images/1790691441898_2251207849705082306_2251207849705082306_7a2293e702ff67d82a4a3b2886011494.jpg",
+    image: "/images/1790868366520_2251207849705082306_2251207849705082306_12e9c0679cccb508ea80bd7c4771925b.jpg",
     slug: "sam-bao-tuoi",
   },
   "SK-2026-0601": {
     sku: "THS-SK-02",
     saponin: "17.2 mg/g (Sấy thăng hoa chân không)",
-    image: "/images/1790691442022_2251207849705082306_2251207849705082306_6ad8864197f32490ffac32f52b5b6ebd.jpg",
+    image: "/images/1790868371239_2251207849705082306_2251207849705082306_833bcb60ad4056b1853e8e6988ea227b.jpg",
     slug: "sam-bao-kho",
   },
   "CS-2026-0802": {
     sku: "THS-CS-03",
     saponin: "32.8 mg/g (Cô đặc 72 giờ)",
-    image: "/images/1790691442119_2251207849705082306_2251207849705082306_aedb7d95c80a1affc750e1ba7ce42898.jpg",
+    image: "/images/1790868367584_2251207849705082306_2251207849705082306_7dfa8c645fdaf56adc9af0c64b6e245b.jpg",
     slug: "cao-sam-bao",
   },
   "RS-2026-0718": {
     sku: "THS-RS-04",
     saponin: "15.6 mg/g (Ngâm củ sâm 3 năm tuổi)",
-    image: "/images/1790691442264_2251207849705082306_2251207849705082306_51677dc509da9a7f2ae3b3b674ae2c8a.jpg",
+    image: "/images/1790868361308_2251207849705082306_2251207849705082306_d3293c3e738aa15a56b43cc93588b4ec.jpg",
     slug: "ruou-sam-bao",
+  },
+  "TH-2026-1001": {
+    sku: "THS-TH-05",
+    saponin: "16.8 mg/g (Hoa sấy thăng hoa)",
+    image: "/images/1790868362572_2251207849705082306_2251207849705082306_85576a3603bc20c732216a21831ea08e.jpg",
+    slug: "tra-hoa-sam",
+  },
+  "MO-2026-1002": {
+    sku: "THS-MO-06",
+    saponin: "21.5 mg/g (Ngâm mật ong rừng)",
+    image: "/images/1790868372636_2251207849705082306_2251207849705082306_056f7e2751b3cd096b51624cd760c1d3.jpg",
+    slug: "sam-bao-mat-ong",
   },
 };
 

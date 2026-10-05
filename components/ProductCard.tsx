@@ -2,12 +2,12 @@
 
 import Link from "next/link";
 import { minPrice, vnd, type Product } from "@/lib/data";
-import { ArrowRight, RotateCw } from "lucide-react";
+import { ArrowRight, Camera } from "lucide-react";
 
 export default function ProductCard({ p }: { p: Product }) {
   return (
     <article className="group overflow-hidden rounded-2xl border-2 border-[var(--gold-light)] bg-white transition duration-300 hover:border-[var(--gold)] hover:shadow-xl flex flex-col justify-between">
-      {/* Khung ảnh sản phẩm - Bấm vào là chuyển thẳng tới trang chi tiết có sẵn 360° */}
+      {/* Khung ảnh sản phẩm - Bấm vào là chuyển thẳng tới trang chi tiết */}
       <Link
         href={`/san-pham/${p.slug}`}
         prefetch={true}
@@ -22,10 +22,10 @@ export default function ProductCard({ p }: { p: Product }) {
           className="h-full w-full object-contain p-4 object-center transition duration-500 group-hover:scale-105"
         />
 
-        {/* Badge 360° tinh tế ở góc ảnh (nhẹ nhàng, chuẩn phong cách shop cao cấp) */}
+        {/* Badge Ảnh thật tinh tế ở góc ảnh */}
         <div className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/50 bg-black/75 px-2.5 py-1 text-[11px] font-bold text-[var(--gold-light)] backdrop-blur-md shadow-md">
-          <RotateCw className="h-3 w-3 text-[var(--gold)] animate-spin-slow" />
-          <span>360° 3D</span>
+          <Camera className="h-3 w-3 text-[var(--gold)]" />
+          <span>Ảnh thật</span>
         </div>
       </Link>
 

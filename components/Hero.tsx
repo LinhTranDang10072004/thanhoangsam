@@ -22,15 +22,13 @@ export default function Hero() {
 
   return (
     <section ref={ref} className="relative flex min-h-[92vh] items-center overflow-hidden bg-luxury text-white">
-      <video
-        autoPlay
-        muted
-        loop
-        playsInline
-        className="absolute inset-0 w-full h-full object-cover"
-        src="/images/nguon-goc-chung-nhan-1.mp4"
+      {/* Ảnh nền thực tế không có người theo yêu cầu */}
+      <img
+        src="/images/1790833861531_2251207849705082306_2251207849705082306_bf7aa62b213724f3505242d1ba0b0906.jpg"
+        alt="Vườn Sâm Báo Núi Báo"
+        className="absolute inset-0 w-full h-full object-cover object-center"
       />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/60 to-black/40" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/85 to-black/60" />
 
       {!reduce &&
         particles.map((p, i) => (
@@ -49,19 +47,20 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, letterSpacing: "0.1em" }}
             animate={{ opacity: 1, letterSpacing: "0.2em" }}
             transition={{ duration: 1.2 }}
-            className="text-xs sm:text-sm font-semibold text-[var(--gold)]"
+            className="text-xs sm:text-sm font-bold text-[var(--gold)] uppercase"
           >
-            SÂM TIẾN VUA · NÚI BÁO
+            THANH HOÀNG SÂM · TINH HOA SÂM BÁO XỨ THANH
           </motion.p>
 
           <motion.h1
             initial={reduce ? false : { opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.2 }}
-            className="mt-3 text-3xl sm:text-5xl md:text-7xl leading-[1.15] font-extrabold"
+            className="mt-3 text-3xl sm:text-5xl md:text-7xl leading-[1.15] font-bold text-white drop-shadow-lg"
           >
-            Hồn sâm <span className="text-gold-gradient">Báo</span>
-            <br /> Đất Thanh Hoá
+            Hồn Sâm Báo
+            <br />
+            <span className="text-[var(--gold)]">Đất Thanh Hoá</span>
           </motion.h1>
 
           <motion.p
@@ -94,10 +93,10 @@ export default function Hero() {
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 1.1 }}
-            className="mt-6 sm:mt-8 flex flex-wrap gap-2 text-[11px] sm:text-xs font-semibold text-[var(--gold-light)]"
+            className="mt-5 flex flex-wrap gap-2 text-[11px] sm:text-xs font-semibold text-[var(--gold-light)]"
           >
             <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
-              ✦ 100% Sâm Thật Núi Báo
+              ✦ 100% SÂM Thật Núi Báo
             </span>
             <span className="rounded-full border border-[var(--gold)]/40 bg-black/50 px-3 py-1 backdrop-blur-md">
               ✦ Chuẩn OCOP Vĩnh Lộc
@@ -115,31 +114,30 @@ export default function Hero() {
             animate={{ scale: 1, opacity: 1, rotate: 0 }}
             transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="float glass gold-border-glow relative flex h-80 sm:h-96 w-68 sm:w-72 md:h-[28rem] md:w-80 flex-col items-center justify-between rounded-[2rem] p-3 overflow-hidden group shadow-2xl">
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/80 px-3 py-1 text-[11px] font-bold text-[var(--gold)] backdrop-blur-md border border-[var(--gold)]/40 shadow">
+            <div className="float glass gold-border-glow relative flex h-84 sm:h-96 w-68 sm:w-76 md:h-[28rem] md:w-80 flex-col items-center justify-between rounded-[2rem] p-3 overflow-hidden group shadow-2xl bg-black/40">
+              <div className="absolute top-3 left-3 z-10 flex items-center gap-1.5 rounded-full bg-black/85 px-3 py-1 text-[11px] font-bold text-[var(--gold)] backdrop-blur-md border border-[var(--gold)]/40 shadow">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 </span>
-                <span>Phim tư liệu sâm Báo</span>
+                <span>Ảnh thật củ SÂM Núi Báo</span>
               </div>
 
-              {/* Video tư liệu thực địa */}
-              <div className="relative flex h-full w-full items-center justify-center pt-8 overflow-hidden rounded-2xl">
-                <video
-                  src="/images/nguon-goc-chung-nhan-2.mp4"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
+              {/* Ảnh sản phẩm thực tế hộp trà sâm */}
+              <div className="relative flex h-full w-full items-center justify-center pt-8 overflow-hidden rounded-2xl bg-black/50">
+                <img
+                  src="/images/1790868362572_2251207849705082306_2251207849705082306_85576a3603bc20c732216a21831ea08e.jpg"
+                  alt="Sâm Báo Núi Báo Chính Gốc"
                   className="h-full w-full object-cover rounded-2xl filter drop-shadow-[0_15px_30px_rgba(212,160,23,0.5)] transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
 
-              <div className="relative z-10 flex flex-col items-center pb-2 pt-2">
-                <span className="text-gold-gradient font-black tracking-widest text-base">SÂM BÁO NÚI BÁO</span>
-                <span className="text-[10px] font-semibold tracking-wider text-[var(--gold-light)]/85 uppercase mt-0.5">
-                  Đại Việt Đệ Nhất Danh Sâm
+              <div className="relative z-10 flex flex-col items-center pb-2 pt-2 text-center">
+                <span className="text-gold-gradient font-black tracking-widest text-sm sm:text-base uppercase">
+                  THANH HOÀNG SÂM
+                </span>
+                <span className="text-[10px] font-bold tracking-wider text-[var(--gold-light)] uppercase mt-0.5">
+                  TINH HOA SÂM BÁO XỨ THANH
                 </span>
               </div>
             </div>
