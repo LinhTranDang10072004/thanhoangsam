@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { productTypes, products } from "@/lib/data";
+import { productTypes, products, type Product } from "@/lib/data";
+import { createClient } from "@/lib/supabase/client";
 import ProductCard from "./ProductCard";
 
 function Chip({
@@ -30,10 +32,30 @@ function Chip({
 }
 
 export default function ProductFilter() {
+  const [allProducts, setAllProducts] = useState<Product[]>(products);
   const params = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
   const type = params.get("loai");
+
+  useEffect(() => {
+    async function loadProducts() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("products")
+          .select("*")
+          .order("created_at", { ascending: false });
+
+        if (!error && data && data.length > 0) {
+          setAllProducts(data as Product[]);
+        }
+      } catch (err) {
+        // Fallback giữ nguyên sản phẩm mặc định
+      }
+    }
+    loadProducts();
+  }, []);
 
   function toggle(key: string, value: string, current: string | null) {
     const next = new URLSearchParams(params.toString());
@@ -43,7 +65,7 @@ export default function ProductFilter() {
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
   }
 
-  const list = products.filter(
+  const list = allProducts.filter(
     (product) => !type || product.type === type,
   );
   const filtering = Boolean(type);

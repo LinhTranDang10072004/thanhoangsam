@@ -1,10 +1,32 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct, products } from "@/lib/data";
+import { getProduct, products, type Product } from "@/lib/data";
 import ProductDetail from "@/components/ProductDetail";
+import { createClient } from "@/lib/supabase/server";
 
 export function generateStaticParams() {
   return products.map((product) => ({ slug: product.slug }));
+}
+
+export const dynamicParams = true;
+
+async function findProduct(slug: string): Promise<Product | null> {
+  const local = getProduct(slug);
+  if (local) return local;
+
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from("products")
+      .select("*")
+      .eq("slug", slug)
+      .single();
+    if (data) return data as Product;
+  } catch {
+    // Fallback nếu không kết nối được
+  }
+
+  return null;
 }
 
 export async function generateMetadata({
@@ -13,14 +35,14 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await findProduct(slug);
   if (!product) return { title: "Không tìm thấy sản phẩm" };
   return { title: product.name, description: product.summary };
 }
 
 export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = getProduct(slug);
+  const product = await findProduct(slug);
   if (!product) notFound();
   return <ProductDetail product={product} />;
 }
