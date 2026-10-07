@@ -11,9 +11,6 @@ export function generateStaticParams() {
 export const dynamicParams = true;
 
 async function findProduct(slug: string): Promise<Product | null> {
-  const local = getProduct(slug);
-  if (local) return local;
-
   try {
     const supabase = await createClient();
     const { data } = await supabase
@@ -26,7 +23,7 @@ async function findProduct(slug: string): Promise<Product | null> {
     // Fallback nếu không kết nối được
   }
 
-  return null;
+  return getProduct(slug) || null;
 }
 
 export async function generateMetadata({

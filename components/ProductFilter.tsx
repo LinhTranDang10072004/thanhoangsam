@@ -41,6 +41,15 @@ export default function ProductFilter() {
   useEffect(() => {
     async function loadProducts() {
       try {
+        const res = await fetch("/api/admin/products");
+        if (res.ok) {
+          const json = await res.json();
+          if (json.products && json.products.length > 0) {
+            setAllProducts(json.products as Product[]);
+            return;
+          }
+        }
+
         const supabase = createClient();
         const { data, error } = await supabase
           .from("products")

@@ -52,12 +52,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setProfile(data as Profile);
       } else if (currentUser) {
         const metaRole = currentUser.user_metadata?.role;
+        const isAdmin = metaRole === "admin" || currentUser.email === "admin@thanhoangsam.vn";
         setProfile({
           id: userId,
           full_name: currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "",
           phone: currentUser.user_metadata?.phone || null,
           address: null,
-          role: metaRole === "admin" ? "admin" : "buyer",
+          role: isAdmin ? "admin" : "buyer",
           avatar_url: null,
         });
       }
@@ -65,12 +66,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Lỗi tải thông tin profile:", err);
       if (currentUser) {
         const metaRole = currentUser.user_metadata?.role;
+        const isAdmin = metaRole === "admin" || currentUser.email === "admin@thanhoangsam.vn";
         setProfile({
           id: userId,
           full_name: currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "",
           phone: currentUser.user_metadata?.phone || null,
           address: null,
-          role: metaRole === "admin" ? "admin" : "buyer",
+          role: isAdmin ? "admin" : "buyer",
           avatar_url: null,
         });
       }

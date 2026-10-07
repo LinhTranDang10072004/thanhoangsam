@@ -96,17 +96,27 @@ export default function AdminDashboardPage() {
 
   const supabase = createClient();
 
-  // 1. Tải danh sách User
+  // Helper lấy headers kèm Auth token
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (session?.access_token) {
+      headers["Authorization"] = `Bearer ${session.access_token}`;
+    }
+    return headers;
+  };
+
+  // 1. Tải danh sách User (qua API route bảo mật)
   const fetchAllProfiles = async () => {
     setLoadingProfiles(true);
     try {
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error && data) {
-        setProfilesList(data as Profile[]);
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/users", { headers });
+      const data = await res.json();
+      if (res.ok && data.profiles) {
+        setProfilesList(data.profiles as Profile[]);
       }
     } catch (err) {
       console.error("Lỗi tải danh sách profiles:", err);
@@ -115,19 +125,15 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // 2. Tải danh sách Sản phẩm (ưu tiên từ Supabase, nếu chưa có thì dùng fallback)
+  // 2. Tải danh sách Sản phẩm (ưu tiên từ API/Supabase)
   const fetchAllProducts = async () => {
     setLoadingProducts(true);
     try {
-      const { data, error } = await supabase
-        .from("products")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (!error && data && data.length > 0) {
-        setProductList(data as Product[]);
+      const res = await fetch("/api/admin/products");
+      const data = await res.json();
+      if (res.ok && data.products && data.products.length > 0) {
+        setProductList(data.products as Product[]);
       } else {
-        // Fallback từ lib/data.ts nếu bảng chưa tạo
         const local = localStorage.getItem("ths_custom_products");
         if (local) {
           try {
@@ -148,7 +154,11 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (profile?.role === "admin" || user?.user_metadata?.role === "admin") {
+    if (
+      profile?.role === "admin" ||
+      user?.user_metadata?.role === "admin" ||
+      user?.email === "admin@thanhoangsam.vn"
+    ) {
       fetchAllProfiles();
       fetchAllProducts();
     }
@@ -185,7 +195,7 @@ export default function AdminDashboardPage() {
     setIsCreatingProduct(false);
   };
 
-  // Lưu sản phẩm (Thêm mới hoặc Cập nhật)
+  // Lưu sản phẩm (Thêm mới hoặc Cập nhật - CHỈ ADMIN)
   const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!productForm.name || !productForm.slug) {
@@ -210,10 +220,21 @@ export default function AdminDashboardPage() {
     };
 
     try {
-      // 1. Thử ghi vào Supabase
-      const { error } = await supabase.from("products").upsert(payload, { onConflict: "slug" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/products", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
 
-      // 2. Đồng bộ state và localStorage để mượt mà 100%
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: result.error || "Không thể lưu sản phẩm." });
+        return;
+      }
+
+      await fetchAllProducts();
+
       let updated: Product[];
       if (editingProduct) {
         updated = productList.map((p) => (p.slug === editingProduct.slug ? payload : p));
@@ -223,7 +244,6 @@ export default function AdminDashboardPage() {
         setActionMsg({ type: "success", text: `Đã thêm mới sản phẩm "${payload.name}" thành công!` });
       }
 
-      setProductList(updated);
       localStorage.setItem("ths_custom_products", JSON.stringify(updated));
 
       // Đóng modal
@@ -236,17 +256,27 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Xóa sản phẩm
+  // Xóa sản phẩm (CHỈ ADMIN)
   const handleDeleteProduct = async (slug: string, name: string) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${name}" không?`)) {
       return;
     }
 
     try {
-      await supabase.from("products").delete().eq("slug", slug);
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/admin/products?slug=${encodeURIComponent(slug)}`, {
+        method: "DELETE",
+        headers,
+      });
+      const result = await res.json();
 
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: result.error || "Không thể xóa sản phẩm lúc này." });
+        return;
+      }
+
+      await fetchAllProducts();
       const updated = productList.filter((p) => p.slug !== slug);
-      setProductList(updated);
       localStorage.setItem("ths_custom_products", JSON.stringify(updated));
 
       setActionMsg({ type: "success", text: `Đã xóa sản phẩm "${name}" thành công!` });
@@ -264,13 +294,16 @@ export default function AdminDashboardPage() {
     setUpdatingRoleId(targetUserId);
     setActionMsg(null);
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({ role: newRole, updated_at: new Date().toISOString() })
-        .eq("id", targetUserId);
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ id: targetUserId, role: newRole }),
+      });
+      const result = await res.json();
 
-      if (error) {
-        setActionMsg({ type: "error", text: "Lỗi cập nhật quyền: " + error.message });
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: "Lỗi cập nhật quyền: " + (result.error || "") });
       } else {
         setActionMsg({
           type: "success",
@@ -293,19 +326,22 @@ export default function AdminDashboardPage() {
     if (!editingUser) return;
 
     try {
-      const { error } = await supabase
-        .from("profiles")
-        .update({
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/users", {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({
+          id: editingUser.id,
           full_name: editingUser.full_name?.trim() || "",
           phone: editingUser.phone?.trim() || "",
           address: editingUser.address?.trim() || "",
           role: editingUser.role,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", editingUser.id);
+        }),
+      });
+      const result = await res.json();
 
-      if (error) {
-        setActionMsg({ type: "error", text: "Lỗi lưu thông tin user: " + error.message });
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: "Lỗi lưu thông tin user: " + (result.error || "") });
       } else {
         setActionMsg({ type: "success", text: "Đã cập nhật thông tin người dùng thành công!" });
         setEditingUser(null);
@@ -329,9 +365,15 @@ export default function AdminDashboardPage() {
     }
 
     try {
-      const { error } = await supabase.from("profiles").delete().eq("id", u.id);
-      if (error) {
-        setActionMsg({ type: "error", text: "Lỗi khi xóa tài khoản: " + error.message });
+      const headers = await getAuthHeaders();
+      const res = await fetch(`/api/admin/users?id=${encodeURIComponent(u.id)}`, {
+        method: "DELETE",
+        headers,
+      });
+      const result = await res.json();
+
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: "Lỗi khi xóa tài khoản: " + (result.error || "") });
       } else {
         setActionMsg({ type: "success", text: "Đã xóa tài khoản khỏi hệ thống!" });
         await fetchAllProfiles();
@@ -353,7 +395,10 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const isAdmin = profile?.role === "admin" || user?.user_metadata?.role === "admin";
+  const isAdmin =
+    profile?.role === "admin" ||
+    user?.user_metadata?.role === "admin" ||
+    user?.email === "admin@thanhoangsam.vn";
 
   if (!isAdmin) {
     return (
