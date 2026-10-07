@@ -17,6 +17,7 @@ export default function DangKyPage() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [needsEmailConfirmation, setNeedsEmailConfirmation] = useState(false);
 
   const supabase = createClient();
 
@@ -37,15 +38,21 @@ export default function DangKyPage() {
     setLoading(true);
 
     try {
-      // Đăng ký qua Supabase Auth kèm theo metadata để trigger tự sinh profiles
+      const redirectUrl =
+        typeof window !== "undefined"
+          ? `${window.location.origin}/auth/callback`
+          : "https://thanhhoangsam.com/auth/callback";
+
+      // Đăng ký qua Supabase Auth kèm theo metadata và emailRedirectTo
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password: password,
         options: {
+          emailRedirectTo: redirectUrl,
           data: {
             full_name: fullName.trim(),
             phone: phone.trim(),
-            role: "buyer", // Mặc định là tài khoản khách hàng
+            role: "buyer",
           },
         },
       });
@@ -62,11 +69,16 @@ export default function DangKyPage() {
 
       if (data.user) {
         setSuccess(true);
-        // Nếu không yêu cầu xác thực email, chuyển về trang cá nhân sau 1.5s
-        setTimeout(() => {
-          router.push("/tai-khoan");
-          router.refresh();
-        }, 1500);
+        // Nếu không có session tức là Supabase đang yêu cầu xác thực email (Confirm Email = ON)
+        if (!data.session) {
+          setNeedsEmailConfirmation(true);
+        } else {
+          setNeedsEmailConfirmation(false);
+          setTimeout(() => {
+            router.push("/tai-khoan");
+            router.refresh();
+          }, 1500);
+        }
       }
     } catch (err: unknown) {
       setErrorMsg("Có lỗi xảy ra trong quá trình đăng ký. Vui lòng thử lại sau.");
@@ -98,9 +110,25 @@ export default function DangKyPage() {
           <div className="mt-6 flex flex-col items-center justify-center gap-3 rounded-2xl border border-emerald-500/60 bg-emerald-950/60 p-6 text-center animate-in fade-in">
             <CheckCircle2 className="h-10 w-10 text-emerald-400" />
             <h3 className="font-bold text-emerald-300 text-lg">Đăng ký thành công!</h3>
-            <p className="text-xs text-stone-200">
-              Đang chuyển hướng quý khách về trang tài khoản cá nhân...
-            </p>
+            {needsEmailConfirmation ? (
+              <div className="space-y-3 text-xs text-stone-200 text-left bg-black/40 p-4 rounded-xl border border-emerald-500/30 mt-2">
+                <p className="leading-relaxed">
+                  ✉️ Chúng tôi đã gửi một email xác nhận kích hoạt tài khoản tới: <b className="text-[var(--gold)] break-all">{email}</b>.
+                </p>
+                <p className="leading-relaxed text-stone-300">
+                  Quý khách vui lòng kiểm tra hộp thư đến (hoặc thư mục <b>Spam / Thư rác / Quảng cáo</b>) và bấm vào liên kết trong thư để hoàn tất kích hoạt tài khoản.
+                </p>
+                <div className="pt-2 text-center">
+                  <Link href="/dang-nhap" className="btn-gold !py-2 !px-5 text-xs font-bold inline-block">
+                    Đi tới trang Đăng nhập
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-stone-200">
+                Đang chuyển hướng quý khách về trang tài khoản cá nhân...
+              </p>
+            )}
           </div>
         ) : (
           <>

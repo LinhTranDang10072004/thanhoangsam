@@ -10,6 +10,7 @@ function DangNhapContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect");
+  const isVerified = searchParams.get("verified") === "true";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,6 +90,13 @@ function DangNhapContent() {
           <div className="mt-6 flex items-center gap-2.5 rounded-xl border border-emerald-500/50 bg-emerald-950/60 p-3.5 text-xs text-emerald-200 animate-in fade-in">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400" />
             <p className="font-bold">Đăng nhập thành công! Đang chuyển hướng...</p>
+          </div>
+        )}
+
+        {isVerified && !loginSuccess && (
+          <div className="mt-6 flex items-start gap-2.5 rounded-xl border border-emerald-500/50 bg-emerald-950/60 p-3.5 text-xs text-emerald-200 animate-in fade-in">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" />
+            <p>Xác nhận email thành công! Quý khách có thể đăng nhập vào tài khoản ngay bây giờ.</p>
           </div>
         )}
 
