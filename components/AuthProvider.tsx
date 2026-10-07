@@ -40,7 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const supabase = createClient();
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, currentUser?: User | null) => {
     try {
       const { data, error } = await supabase
         .from("profiles")
@@ -50,15 +50,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (!error && data) {
         setProfile(data as Profile);
+      } else if (currentUser) {
+        const metaRole = currentUser.user_metadata?.role;
+        setProfile({
+          id: userId,
+          full_name: currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "",
+          phone: currentUser.user_metadata?.phone || null,
+          address: null,
+          role: metaRole === "admin" ? "admin" : "buyer",
+          avatar_url: null,
+        });
       }
     } catch (err) {
       console.error("Lỗi tải thông tin profile:", err);
+      if (currentUser) {
+        const metaRole = currentUser.user_metadata?.role;
+        setProfile({
+          id: userId,
+          full_name: currentUser.user_metadata?.full_name || currentUser.email?.split("@")[0] || "",
+          phone: currentUser.user_metadata?.phone || null,
+          address: null,
+          role: metaRole === "admin" ? "admin" : "buyer",
+          avatar_url: null,
+        });
+      }
     }
   };
 
   const refreshProfile = async () => {
     if (user) {
-      await fetchProfile(user.id);
+      await fetchProfile(user.id, user);
     }
   };
 
@@ -72,7 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         if (session?.user) {
           setUser(session.user);
-          await fetchProfile(session.user.id);
+          await fetchProfile(session.user.id, session.user);
         } else {
           setUser(null);
           setProfile(null);
@@ -92,7 +113,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
       if (session?.user) {
         setUser(session.user);
-        await fetchProfile(session.user.id);
+        await fetchProfile(session.user.id, session.user);
       } else {
         setUser(null);
         setProfile(null);

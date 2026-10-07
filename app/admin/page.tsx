@@ -148,11 +148,11 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (profile?.role === "admin") {
+    if (profile?.role === "admin" || user?.user_metadata?.role === "admin") {
       fetchAllProfiles();
       fetchAllProducts();
     }
-  }, [profile]);
+  }, [profile, user]);
 
   // ===================== CRUD SẢN PHẨM =====================
 
@@ -353,7 +353,9 @@ export default function AdminDashboardPage() {
     );
   }
 
-  if (profile?.role !== "admin") {
+  const isAdmin = profile?.role === "admin" || user?.user_metadata?.role === "admin";
+
+  if (!isAdmin) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center bg-luxury text-white p-4">
         <div className="max-w-md text-center space-y-4 rounded-3xl border border-rose-500/50 bg-rose-950/60 p-8 shadow-2xl">
@@ -410,7 +412,7 @@ export default function AdminDashboardPage() {
                 </span>
               </div>
               <p className="text-xs text-stone-300 mt-0.5">
-                Quản trị viên: <b className="text-white">{profile.full_name || user?.email}</b>
+                Quản trị viên: <b className="text-white">{profile?.full_name || user?.email}</b>
               </p>
             </div>
           </div>
