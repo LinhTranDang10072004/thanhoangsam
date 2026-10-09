@@ -35,9 +35,9 @@ export const products: Product[] = [
     needs: ["Tăng sức đề kháng", "Bồi bổ cơ thể"],
     age: "2 năm tuổi",
     image: "/images/1790868366520_2251207849705082306_2251207849705082306_12e9c0679cccb508ea80bd7c4771925b.jpg",
-    summary: "Củ sâm Báo tươi, hoa vàng, thu tại núi Báo. Dùng nấu canh, hãm nước hoặc thái mỏng.",
+    summary: "Củ sâm hoa vàng thu hoạch tháng 9–12, tươi nguyên vị hoặc thái lát sấy khô.",
     detail:
-      "Sâm mọc tự nhiên trên núi Báo nên người dân gọi là sâm Báo. Củ tươi giữ mùi thơm đặc trưng, phù hợp nhà có người lớn tuổi muốn bồi bổ bữa ăn hằng ngày.",
+      "Sâm mọc tự nhiên trên núi Báo nên người dân gọi là sâm Báo. Củ sâm hoa vàng thu hoạch tháng 9–12, giữ tươi nguyên vị hoặc thái lát sấy khô, thơm đặc trưng và giàu saponin quý. Phù hợp nhà có người lớn tuổi muốn bồi bổ bữa ăn hằng ngày.",
     usage:
       "Rửa sạch, thái lát mỏng. Có thể nấu với gà hoặc hãm nước ấm. Không dùng thay thuốc. Người đang điều trị bệnh nên hỏi bác sĩ trước khi dùng thường xuyên.",
     variants: [
@@ -54,9 +54,9 @@ export const products: Product[] = [
     needs: ["Bồi bổ cơ thể", "Cải thiện giấc ngủ"],
     age: "4 năm tuổi",
     image: "/images/1790868371239_2251207849705082306_2251207849705082306_833bcb60ad4056b1853e8e6988ea227b.jpg",
-    summary: "Củ thái lát, sấy khô, dễ bảo quản và sắc nước dùng dần.",
+    summary: "Củ sâm hoa vàng thu hoạch tháng 9–12, thái lát sấy khô, dễ bảo quản và sắc nước dùng dần.",
     detail:
-      "Lát sâm khô từ củ 4 năm tuổi, đóng túi kín. Phù hợp nhà xa muốn cất trữ vài tháng mà không phải dùng hết củ tươi ngay.",
+      "Lát sâm khô từ củ 4 năm tuổi thu hoạch tháng 9–12, sấy khô đóng túi kín. Phù hợp nhà xa muốn cất trữ vài tháng mà không phải dùng hết củ tươi ngay.",
     usage:
       "Lấy 3–5 lát hãm nước sôi để nguội bớt, uống trong ngày. Không sắc lại nhiều lần đến khi nhạt hẳn. Không dùng thay thuốc.",
     variants: [
