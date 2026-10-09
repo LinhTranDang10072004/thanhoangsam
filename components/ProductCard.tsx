@@ -37,7 +37,6 @@ export default function ProductCard({ p }: { p: Product }) {
           <h3 className="mt-2 text-xl font-bold text-[var(--red)] hover:text-[var(--gold)] transition">
             <Link href={`/san-pham/${p.slug}`} prefetch={true}>{p.name}</Link>
           </h3>
-          <p className="mt-1 text-base leading-snug text-stone-700">{p.summary}</p>
         </div>
 
         <div className="mt-4 pt-3 border-t border-stone-100">
