@@ -28,8 +28,61 @@ import {
   Image as ImageIcon,
   UserCheck,
   UserX,
+  TrendingUp,
+  DollarSign,
+  CreditCard,
+  ShoppingBag,
+  UploadCloud,
+  Loader2,
+  CalendarDays,
+  Clock,
+  Check,
+  Ban,
+  ExternalLink,
+  ChevronRight,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
+
+export interface OrderItem {
+  name: string;
+  variant?: string;
+  qty: number;
+  price: number;
+  total: number;
+}
+
+export interface OrderRecord {
+  id: number;
+  order_code: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  customer_note?: string;
+  items: OrderItem[];
+  total_amount: number;
+  payment_method: string;
+  payment_status: "pending" | "paid" | "cancelled";
+  paid_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface RevenueStats {
+  totalRevenue: number;
+  paidOrdersCount: number;
+  pendingOrdersCount: number;
+  totalOrdersCount: number;
+  todayRevenue: number;
+  todayOrdersCount: number;
+  thisMonthRevenue: number;
+  thisMonthOrdersCount: number;
+  thisYearRevenue: number;
+  thisYearOrdersCount: number;
+  dailyBreakdown: Record<string, { revenue: number; count: number }>;
+  monthlyBreakdown: Record<string, { revenue: number; count: number }>;
+  yearlyBreakdown: Record<string, { revenue: number; count: number }>;
+}
 
 // Danh sách ảnh thực tế có sẵn trong hệ thống để chọn nhanh
 const availableImages = [
@@ -61,7 +114,28 @@ function generateSlug(str: string) {
 
 export default function AdminDashboardPage() {
   const { user, profile, loading: authLoading, signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<"products" | "users" | "lots">("products");
+  const [activeTab, setActiveTab] = useState<"analytics" | "products" | "users" | "lots">("analytics");
+
+  // State Quản lý Doanh thu & Đơn hàng
+  const [ordersList, setOrdersList] = useState<OrderRecord[]>([]);
+  const [revenueStats, setRevenueStats] = useState<RevenueStats | null>(null);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [tableNotCreated, setTableNotCreated] = useState(false);
+  const [revenuePeriodFilter, setRevenuePeriodFilter] = useState<"all" | "today" | "month" | "year">("month");
+  const [searchOrder, setSearchOrder] = useState("");
+  const [filterOrderStatus, setFilterOrderStatus] = useState<"all" | "paid" | "pending" | "cancelled">("all");
+  const [updatingOrderId, setUpdatingOrderId] = useState<number | null>(null);
+
+  // State Cloudinary Image Upload
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [showCloudinaryConfig, setShowCloudinaryConfig] = useState(false);
+  const [cldConfig, setCldConfig] = useState({
+    cloudName: "",
+    apiKey: "",
+    apiSecret: "",
+    uploadPreset: "",
+  });
 
   // State Quản lý User
   const [profilesList, setProfilesList] = useState<Profile[]>([]);
@@ -153,6 +227,29 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // 3. Tải danh sách Đơn hàng & Thống kê Doanh thu
+  const fetchOrdersAndRevenue = async () => {
+    setLoadingOrders(true);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/orders", { headers });
+      const data = await res.json();
+      if (res.ok) {
+        if (data.tableNotCreated) {
+          setTableNotCreated(true);
+        } else {
+          setTableNotCreated(false);
+          setOrdersList(data.orders || []);
+          setRevenueStats(data.stats || null);
+        }
+      }
+    } catch (err) {
+      console.error("Lỗi tải đơn hàng và doanh thu:", err);
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   useEffect(() => {
     if (
       profile?.role === "admin" ||
@@ -161,8 +258,84 @@ export default function AdminDashboardPage() {
     ) {
       fetchAllProfiles();
       fetchAllProducts();
+      fetchOrdersAndRevenue();
     }
   }, [profile, user]);
+
+  // Cập nhật trạng thái thanh toán đơn hàng (Duyệt đơn COD đã thanh toán, hoặc Hủy đơn)
+  const handleUpdateOrderStatus = async (id: number, newStatus: "paid" | "cancelled") => {
+    setUpdatingOrderId(id);
+    setActionMsg(null);
+    try {
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/admin/orders", {
+        method: "PUT",
+        headers,
+        body: JSON.stringify({ id, payment_status: newStatus }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setActionMsg({ type: "error", text: data.error || "Không thể cập nhật trạng thái đơn." });
+      } else {
+        setActionMsg({
+          type: "success",
+          text: `Đã cập nhật trạng thái đơn #${id} sang "${newStatus === "paid" ? "ĐÃ THANH TOÁN" : "ĐÃ HỦY"}"!`,
+        });
+        await fetchOrdersAndRevenue();
+        setTimeout(() => setActionMsg(null), 3000);
+      }
+    } catch (err) {
+      console.error(err);
+      setActionMsg({ type: "error", text: "Lỗi khi cập nhật đơn hàng." });
+    } finally {
+      setUpdatingOrderId(null);
+    }
+  };
+
+  // Upload ảnh lên Cloudinary
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setUploadError(null);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const formData = new FormData();
+      formData.append("file", file);
+
+      if (cldConfig.cloudName) formData.append("cloud_name", cldConfig.cloudName.trim());
+      if (cldConfig.apiKey) formData.append("api_key", cldConfig.apiKey.trim());
+      if (cldConfig.apiSecret) formData.append("api_secret", cldConfig.apiSecret.trim());
+      if (cldConfig.uploadPreset) formData.append("upload_preset", cldConfig.uploadPreset.trim());
+
+      const res = await fetch("/api/admin/upload", {
+        method: "POST",
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setUploadError(data.error || "Lỗi tải ảnh lên Cloudinary.");
+        if (data.needsConfig) {
+          setShowCloudinaryConfig(true);
+        }
+      } else if (data.url) {
+        setProductForm((prev) => ({ ...prev, image: data.url }));
+        setActionMsg({ type: "success", text: "Tải ảnh sản phẩm lên Cloudinary thành công!" });
+        setTimeout(() => setActionMsg(null), 3500);
+      }
+    } catch (err: unknown) {
+      console.error(err);
+      setUploadError(err instanceof Error ? err.message : "Có lỗi khi tải ảnh lên Cloudinary.");
+    } finally {
+      setIsUploadingImage(false);
+      e.target.value = "";
+    }
+  };
 
   // ===================== CRUD SẢN PHẨM =====================
 
@@ -468,6 +641,7 @@ export default function AdminDashboardPage() {
               onClick={() => {
                 fetchAllProfiles();
                 fetchAllProducts();
+                fetchOrdersAndRevenue();
               }}
               className="rounded-xl border border-[var(--gold)]/50 bg-black/60 px-3.5 py-2 text-xs font-bold text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#2b0508] transition flex items-center gap-1.5"
             >
@@ -486,30 +660,46 @@ export default function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* ── 4 Thẻ KPI thống kê nhanh ── */}
+        {/* ── 4 Thẻ KPI thống kê Doanh thu & Quy mô ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
           <div className="rounded-2xl border border-[var(--gold)]/40 bg-black/50 p-4 shadow text-center">
-            <Package className="h-5 w-5 text-[var(--gold)] mx-auto mb-1.5" />
-            <p className="text-2xl font-black text-white">{productList.length}</p>
-            <p className="text-[10px] text-stone-400 uppercase font-semibold">Tổng sản phẩm</p>
+            <DollarSign className="h-5 w-5 text-[var(--gold)] mx-auto mb-1.5" />
+            <p className="text-xl sm:text-2xl font-black text-[var(--gold-light)]">
+              {vnd(revenueStats?.totalRevenue || 0)}
+            </p>
+            <p className="text-[10px] text-stone-400 uppercase font-semibold">
+              Tổng thực thu ({revenueStats?.paidOrdersCount || 0} đơn)
+            </p>
           </div>
 
           <div className="rounded-2xl border border-emerald-500/40 bg-black/50 p-4 shadow text-center">
-            <Users className="h-5 w-5 text-emerald-400 mx-auto mb-1.5" />
-            <p className="text-2xl font-black text-emerald-300">{buyerCount}</p>
-            <p className="text-[10px] text-stone-400 uppercase font-semibold">Khách mua hàng</p>
+            <Clock className="h-5 w-5 text-emerald-400 mx-auto mb-1.5" />
+            <p className="text-xl sm:text-2xl font-black text-emerald-300">
+              {vnd(revenueStats?.todayRevenue || 0)}
+            </p>
+            <p className="text-[10px] text-stone-400 uppercase font-semibold">
+              Hôm nay ({revenueStats?.todayOrdersCount || 0} đơn)
+            </p>
           </div>
 
           <div className="rounded-2xl border border-amber-500/40 bg-black/50 p-4 shadow text-center">
-            <ShieldAlert className="h-5 w-5 text-amber-400 mx-auto mb-1.5" />
-            <p className="text-2xl font-black text-amber-300">{adminCount}</p>
-            <p className="text-[10px] text-stone-400 uppercase font-semibold">Quản trị viên</p>
+            <CalendarDays className="h-5 w-5 text-amber-400 mx-auto mb-1.5" />
+            <p className="text-xl sm:text-2xl font-black text-amber-300">
+              {vnd(revenueStats?.thisMonthRevenue || 0)}
+            </p>
+            <p className="text-[10px] text-stone-400 uppercase font-semibold">
+              Tháng này ({revenueStats?.thisMonthOrdersCount || 0} đơn)
+            </p>
           </div>
 
           <div className="rounded-2xl border border-sky-500/40 bg-black/50 p-4 shadow text-center">
-            <QrCode className="h-5 w-5 text-sky-400 mx-auto mb-1.5" />
-            <p className="text-2xl font-black text-sky-300">{lots.length}</p>
-            <p className="text-[10px] text-stone-400 uppercase font-semibold">Lô hàng xác thực</p>
+            <Package className="h-5 w-5 text-sky-400 mx-auto mb-1.5" />
+            <p className="text-xl sm:text-2xl font-black text-sky-300">
+              {productList.length}
+            </p>
+            <p className="text-[10px] text-stone-400 uppercase font-semibold">
+              Sản phẩm trong kho
+            </p>
           </div>
         </div>
 
@@ -528,37 +718,50 @@ export default function AdminDashboardPage() {
         )}
 
         {/* ── Thanh chuyển Tab Quản Trị ── */}
-        <div className="flex border-b border-[var(--gold)]/30 bg-black/40 rounded-2xl p-1 gap-2">
+        <div className="flex border-b border-[var(--gold)]/30 bg-black/40 rounded-2xl p-1 gap-1.5 overflow-x-auto">
+          <button
+            type="button"
+            onClick={() => setActiveTab("analytics")}
+            className={`flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+              activeTab === "analytics"
+                ? "bg-[var(--gold)] text-[#2b0508] shadow"
+                : "text-stone-400 hover:text-white"
+            }`}
+          >
+            <TrendingUp className="h-4 w-4" />
+            <span>Doanh Thu & Đơn Hàng ({ordersList.length})</span>
+          </button>
+
           <button
             type="button"
             onClick={() => setActiveTab("products")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            className={`flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
               activeTab === "products"
                 ? "bg-[var(--gold)] text-[#2b0508] shadow"
                 : "text-stone-400 hover:text-white"
             }`}
           >
             <Package className="h-4 w-4" />
-            <span>Quản Lý Sản Phẩm ({productList.length})</span>
+            <span>Sản Phẩm ({productList.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("users")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            className={`flex-1 min-w-[140px] flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
               activeTab === "users"
                 ? "bg-[var(--gold)] text-[#2b0508] shadow"
                 : "text-stone-400 hover:text-white"
             }`}
           >
             <Users className="h-4 w-4" />
-            <span>Quản Lý Người Dùng ({profilesList.length})</span>
+            <span>Người Dùng ({profilesList.length})</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("lots")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
+            className={`flex-1 min-w-[120px] flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs sm:text-sm font-bold transition ${
               activeTab === "lots"
                 ? "bg-[var(--gold)] text-[#2b0508] shadow"
                 : "text-stone-400 hover:text-white"
@@ -570,7 +773,483 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* ======================================================== */}
-        {/* TAB 1: QUẢN LÝ SẢN PHẨM (CRUD HOÀN CHỈNH) */}
+        {/* TAB 1: THỐNG KÊ DOANH THU & QUẢN LÝ ĐƠN HÀNG */}
+        {/* ======================================================== */}
+        {activeTab === "analytics" && (
+          <div className="space-y-6">
+            {/* Cảnh báo nếu chưa tạo bảng orders trong Supabase */}
+            {tableNotCreated && (
+              <div className="rounded-2xl border-2 border-amber-500/80 bg-gradient-to-r from-amber-950/70 via-amber-900/40 to-black p-5 text-white shadow space-y-3">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-sm sm:text-base">
+                  <AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />
+                  <span>Bảng dữ liệu &apos;orders&apos; chưa được tạo trong Supabase Database</span>
+                </div>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Để hệ thống tự động lưu đơn hàng PayOS / COD và thống kê doanh thu theo ngày, tháng, năm, bạn chỉ cần mở Supabase Dashboard &gt; SQL Editor và chạy đoạn mã đã chuẩn bị sẵn trong file <code className="text-[var(--gold-light)] font-mono">supabase-orders-schema.sql</code>.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const sql = `CREATE TABLE IF NOT EXISTS public.orders (
+  id BIGINT PRIMARY KEY,
+  order_code TEXT UNIQUE NOT NULL,
+  customer_name TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  customer_address TEXT NOT NULL,
+  customer_note TEXT DEFAULT '',
+  items JSONB NOT NULL DEFAULT '[]'::jsonb,
+  total_amount NUMERIC NOT NULL,
+  payment_method TEXT NOT NULL DEFAULT 'vietqr',
+  payment_status TEXT NOT NULL DEFAULT 'pending',
+  payos_payment_link_id TEXT,
+  payos_checkout_url TEXT,
+  payos_qr_code TEXT,
+  paid_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Public can select orders" ON public.orders FOR SELECT USING (true);
+CREATE POLICY "Public can insert orders" ON public.orders FOR INSERT WITH CHECK (true);
+CREATE POLICY "Admin can update orders" ON public.orders FOR UPDATE USING (true);`;
+                    navigator.clipboard.writeText(sql);
+                    setActionMsg({ type: "success", text: "Đã copy câu lệnh SQL tạo bảng orders vào bộ nhớ tạm!" });
+                    setTimeout(() => setActionMsg(null), 3000);
+                  }}
+                  className="btn-gold !py-2 !px-4 text-xs font-bold flex items-center gap-1.5 shadow"
+                >
+                  <Save size={14} />
+                  <span>Sao chép câu lệnh SQL tạo bảng</span>
+                </button>
+              </div>
+            )}
+
+            {/* 4 Thẻ chỉ số Doanh thu chi tiết: Tổng, Hôm nay, Tháng này, Năm nay */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* Thẻ 1: Tổng doanh thu */}
+              <div className="rounded-2xl border border-[var(--gold)]/50 bg-gradient-to-b from-[#2b0508] to-black p-5 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+                    Tổng doanh thu thực nhận
+                  </span>
+                  <div className="p-2 rounded-xl bg-[var(--gold)]/20 text-[var(--gold)] border border-[var(--gold)]/40">
+                    <DollarSign size={18} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl sm:text-3xl font-black text-[var(--gold-light)] font-mono">
+                    {vnd(revenueStats?.totalRevenue || 0)}
+                  </p>
+                  <div className="mt-2 flex items-center gap-2 text-[11px] text-stone-400">
+                    <span className="text-emerald-400 font-bold">
+                      ✓ {revenueStats?.paidOrdersCount || 0} đơn thành công
+                    </span>
+                    <span>•</span>
+                    <span className="text-amber-300">
+                      ⏳ {revenueStats?.pendingOrdersCount || 0} đơn chờ
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Thẻ 2: Doanh thu Hôm nay */}
+              <div className="rounded-2xl border border-emerald-500/40 bg-gradient-to-b from-[#0a2015] to-black p-5 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+                    Doanh thu Hôm nay
+                  </span>
+                  <div className="p-2 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-400/40">
+                    <Clock size={18} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl sm:text-3xl font-black text-emerald-300 font-mono">
+                    {vnd(revenueStats?.todayRevenue || 0)}
+                  </p>
+                  <p className="mt-2 text-[11px] text-stone-400">
+                    Ghi nhận <b className="text-white">{revenueStats?.todayOrdersCount || 0}</b> đơn hàng trong ngày
+                  </p>
+                </div>
+              </div>
+
+              {/* Thẻ 3: Doanh thu Tháng này */}
+              <div className="rounded-2xl border border-amber-500/40 bg-gradient-to-b from-[#251806] to-black p-5 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+                    Doanh thu Tháng {new Date().getMonth() + 1}/{new Date().getFullYear()}
+                  </span>
+                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-400/40">
+                    <CalendarDays size={18} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl sm:text-3xl font-black text-amber-300 font-mono">
+                    {vnd(revenueStats?.thisMonthRevenue || 0)}
+                  </p>
+                  <p className="mt-2 text-[11px] text-stone-400">
+                    Ghi nhận <b className="text-white">{revenueStats?.thisMonthOrdersCount || 0}</b> đơn hàng trong tháng
+                  </p>
+                </div>
+              </div>
+
+              {/* Thẻ 4: Doanh thu Năm nay */}
+              <div className="rounded-2xl border border-purple-500/40 bg-gradient-to-b from-[#1b0825] to-black p-5 shadow-xl relative overflow-hidden">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-stone-300 uppercase tracking-wider">
+                    Doanh thu Năm {new Date().getFullYear()}
+                  </span>
+                  <div className="p-2 rounded-xl bg-purple-500/20 text-purple-400 border border-purple-400/40">
+                    <TrendingUp size={18} />
+                  </div>
+                </div>
+                <div className="mt-3">
+                  <p className="text-2xl sm:text-3xl font-black text-purple-300 font-mono">
+                    {vnd(revenueStats?.thisYearRevenue || 0)}
+                  </p>
+                  <p className="mt-2 text-[11px] text-stone-400">
+                    Ghi nhận <b className="text-white">{revenueStats?.thisYearOrdersCount || 0}</b> đơn hàng trong năm
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bảng phân tích Doanh thu theo Ngày / Tháng / Năm */}
+            <div className="rounded-3xl border border-[var(--gold)]/30 bg-black/40 p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="font-heading text-base font-bold text-[var(--gold-light)] flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4 text-[var(--gold)]" />
+                    <span>Chi Tiết Doanh Thu Theo Mốc Thời Gian</span>
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    Phân tích số tiền đã thanh toán theo từng ngày, tháng và năm
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-1.5 bg-black/60 p-1 rounded-xl border border-[var(--gold)]/30">
+                  <button
+                    type="button"
+                    onClick={() => setRevenuePeriodFilter("today")}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                      revenuePeriodFilter === "today"
+                        ? "bg-[var(--gold)] text-[#2b0508]"
+                        : "text-stone-300 hover:text-white"
+                    }`}
+                  >
+                    Theo Ngày
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRevenuePeriodFilter("month")}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                      revenuePeriodFilter === "month"
+                        ? "bg-[var(--gold)] text-[#2b0508]"
+                        : "text-stone-300 hover:text-white"
+                    }`}
+                  >
+                    Theo Tháng
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setRevenuePeriodFilter("year")}
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition ${
+                      revenuePeriodFilter === "year"
+                        ? "bg-[var(--gold)] text-[#2b0508]"
+                        : "text-stone-300 hover:text-white"
+                    }`}
+                  >
+                    Theo Năm
+                  </button>
+                </div>
+              </div>
+
+              {/* Nội dung bảng mốc thời gian */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="border-b border-white/10 text-[var(--gold-light)] uppercase font-semibold">
+                    <tr>
+                      <th className="py-2.5 px-3">
+                        {revenuePeriodFilter === "today"
+                          ? "Mốc Ngày (YYYY-MM-DD)"
+                          : revenuePeriodFilter === "month"
+                          ? "Mốc Tháng (YYYY-MM)"
+                          : "Mốc Năm (YYYY)"}
+                      </th>
+                      <th className="py-2.5 px-3">Số đơn thanh toán thành công</th>
+                      <th className="py-2.5 px-3 text-right">Doanh thu thu về</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {revenuePeriodFilter === "today" &&
+                      revenueStats?.dailyBreakdown &&
+                      Object.entries(revenueStats.dailyBreakdown)
+                        .sort((a, b) => b[0].localeCompare(a[0]))
+                        .map(([dateKey, val]) => (
+                          <tr key={dateKey} className="hover:bg-white/5 transition">
+                            <td className="py-2.5 px-3 font-mono font-bold text-white">
+                              {dateKey} {dateKey === new Date().toISOString().slice(0, 10) && <span className="ml-2 text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-500/40">Hôm nay</span>}
+                            </td>
+                            <td className="py-2.5 px-3 text-stone-300">
+                              {val.count} đơn
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">
+                              {vnd(val.revenue)}
+                            </td>
+                          </tr>
+                        ))}
+
+                    {revenuePeriodFilter === "month" &&
+                      revenueStats?.monthlyBreakdown &&
+                      Object.entries(revenueStats.monthlyBreakdown)
+                        .sort((a, b) => b[0].localeCompare(a[0]))
+                        .map(([monthKey, val]) => (
+                          <tr key={monthKey} className="hover:bg-white/5 transition">
+                            <td className="py-2.5 px-3 font-mono font-bold text-white">
+                              Tháng {monthKey}
+                            </td>
+                            <td className="py-2.5 px-3 text-stone-300">
+                              {val.count} đơn
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">
+                              {vnd(val.revenue)}
+                            </td>
+                          </tr>
+                        ))}
+
+                    {revenuePeriodFilter === "year" &&
+                      revenueStats?.yearlyBreakdown &&
+                      Object.entries(revenueStats.yearlyBreakdown)
+                        .sort((a, b) => b[0].localeCompare(a[0]))
+                        .map(([yearKey, val]) => (
+                          <tr key={yearKey} className="hover:bg-white/5 transition">
+                            <td className="py-2.5 px-3 font-mono font-bold text-white">
+                              Năm {yearKey}
+                            </td>
+                            <td className="py-2.5 px-3 text-stone-300">
+                              {val.count} đơn
+                            </td>
+                            <td className="py-2.5 px-3 text-right font-mono font-bold text-emerald-400">
+                              {vnd(val.revenue)}
+                            </td>
+                          </tr>
+                        ))}
+
+                    {(!revenueStats ||
+                      (revenuePeriodFilter === "today" && (!revenueStats.dailyBreakdown || Object.keys(revenueStats.dailyBreakdown).length === 0)) ||
+                      (revenuePeriodFilter === "month" && (!revenueStats.monthlyBreakdown || Object.keys(revenueStats.monthlyBreakdown).length === 0)) ||
+                      (revenuePeriodFilter === "year" && (!revenueStats.yearlyBreakdown || Object.keys(revenueStats.yearlyBreakdown).length === 0))) && (
+                      <tr>
+                        <td colSpan={3} className="py-6 text-center text-stone-500 italic">
+                          Chưa có phát sinh đơn hàng thanh toán trong giai đoạn này.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Bảng Danh sách Đơn hàng Toàn diện */}
+            <div className="rounded-3xl border border-[var(--gold)]/30 bg-black/40 p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-[var(--gold-light)] flex items-center gap-2">
+                    <CreditCard className="h-5 w-5 text-[var(--gold)]" />
+                    <span>Quản Lý Toàn Bộ Đơn Hàng ({ordersList.length})</span>
+                  </h3>
+                  <p className="text-xs text-stone-400">
+                    Theo dõi trạng thái thanh toán VietQR &amp; COD, xác nhận thu tiền hoặc hủy đơn
+                  </p>
+                </div>
+
+                {/* Bộ lọc trạng thái */}
+                <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
+                  {(["all", "paid", "pending", "cancelled"] as const).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setFilterOrderStatus(st)}
+                      className={`px-3 py-1.5 text-xs font-bold rounded-lg transition whitespace-nowrap ${
+                        filterOrderStatus === st
+                          ? "bg-[var(--gold)] text-[#2b0508]"
+                          : "border border-[var(--gold)]/30 bg-black/40 text-stone-300 hover:text-white"
+                      }`}
+                    >
+                      {st === "all"
+                        ? "Tất cả đơn"
+                        : st === "paid"
+                        ? "Đã thanh toán"
+                        : st === "pending"
+                        ? "Chờ xử lý"
+                        : "Đã hủy"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tìm kiếm đơn */}
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <input
+                  type="text"
+                  value={searchOrder}
+                  onChange={(e) => setSearchOrder(e.target.value)}
+                  placeholder="Tìm theo mã đơn (THS-...), tên khách, số điện thoại..."
+                  className="w-full rounded-xl border border-[var(--gold)]/40 bg-black/60 pl-9 pr-3 py-2 text-xs text-white placeholder-stone-500 outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+
+              {/* Bảng đơn */}
+              {loadingOrders ? (
+                <div className="py-12 text-center text-xs text-stone-400 flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin text-[var(--gold)]" />
+                  <span>Đang tải danh sách đơn hàng...</span>
+                </div>
+              ) : ordersList.length === 0 ? (
+                <div className="py-12 text-center text-xs text-stone-400">
+                  Chưa có đơn hàng nào trong hệ thống.
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="border-b border-[var(--gold)]/30 text-[var(--gold-light)] uppercase font-semibold">
+                      <tr>
+                        <th className="py-3 px-3">Mã đơn &amp; Thời gian</th>
+                        <th className="py-3 px-3">Khách hàng</th>
+                        <th className="py-3 px-3">Sản phẩm</th>
+                        <th className="py-3 px-3">Tổng tiền</th>
+                        <th className="py-3 px-3">Phương thức</th>
+                        <th className="py-3 px-3">Trạng thái</th>
+                        <th className="py-3 px-3 text-right">Thao tác</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/10">
+                      {ordersList
+                        .filter((ord) => {
+                          const matchSearch =
+                            ord.order_code?.toLowerCase().includes(searchOrder.toLowerCase()) ||
+                            ord.customer_name?.toLowerCase().includes(searchOrder.toLowerCase()) ||
+                            ord.customer_phone?.includes(searchOrder);
+                          const matchStatus =
+                            filterOrderStatus === "all" || ord.payment_status === filterOrderStatus;
+                          return matchSearch && matchStatus;
+                        })
+                        .map((ord) => (
+                          <tr key={ord.id} className="hover:bg-white/5 transition">
+                            {/* Mã & ngày */}
+                            <td className="py-3 px-3">
+                              <p className="font-mono font-bold text-white text-xs">{ord.order_code}</p>
+                              <p className="text-[10px] text-stone-400">
+                                {ord.created_at ? new Date(ord.created_at).toLocaleString("vi-VN") : "—"}
+                              </p>
+                            </td>
+
+                            {/* Khách hàng */}
+                            <td className="py-3 px-3">
+                              <p className="font-bold text-white">{ord.customer_name || "(Chưa có tên)"}</p>
+                              <p className="text-[11px] text-stone-300 font-mono">{ord.customer_phone}</p>
+                              <p className="text-[10px] text-stone-400 max-w-[160px] truncate" title={ord.customer_address}>
+                                {ord.customer_address}
+                              </p>
+                              {ord.customer_note && (
+                                <p className="text-[10px] text-amber-300 italic mt-0.5">
+                                  Note: {ord.customer_note}
+                                </p>
+                              )}
+                            </td>
+
+                            {/* Sản phẩm */}
+                            <td className="py-3 px-3">
+                              <div className="space-y-1 max-w-[200px]">
+                                {ord.items && Array.isArray(ord.items) && ord.items.map((it, idx) => (
+                                  <div key={idx} className="text-[11px] text-stone-200">
+                                    <span className="font-semibold">{it.name}</span>
+                                    {it.variant && <span className="text-stone-400 text-[10px]"> ({it.variant})</span>}
+                                    <span className="text-[var(--gold-light)] font-bold"> x{it.qty}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </td>
+
+                            {/* Tổng tiền */}
+                            <td className="py-3 px-3 font-mono font-bold text-base text-[var(--gold-light)]">
+                              {vnd(ord.total_amount)}
+                            </td>
+
+                            {/* Phương thức */}
+                            <td className="py-3 px-3">
+                              <span className="rounded-full px-2 py-0.5 text-[10px] font-bold uppercase border border-white/20 bg-white/5 text-stone-300">
+                                {ord.payment_method === "vietqr" ? "VietQR (PayOS)" : "COD Tiền mặt"}
+                              </span>
+                            </td>
+
+                            {/* Trạng thái */}
+                            <td className="py-3 px-3">
+                              <span
+                                className={`inline-block rounded-full px-2.5 py-0.5 font-bold uppercase text-[10px] ${
+                                  ord.payment_status === "paid"
+                                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-400/40"
+                                    : ord.payment_status === "cancelled"
+                                    ? "bg-rose-500/20 text-rose-300 border border-rose-400/40"
+                                    : "bg-amber-500/20 text-amber-300 border border-amber-400/40"
+                                }`}
+                              >
+                                {ord.payment_status === "paid"
+                                  ? "Đã thanh toán"
+                                  : ord.payment_status === "cancelled"
+                                  ? "Đã hủy"
+                                  : "Chờ thanh toán"}
+                              </span>
+                            </td>
+
+                            {/* Thao tác */}
+                            <td className="py-3 px-3 text-right">
+                              {ord.payment_status === "pending" ? (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    disabled={updatingOrderId === ord.id}
+                                    onClick={() => handleUpdateOrderStatus(ord.id, "paid")}
+                                    className="rounded-lg border border-emerald-500/50 bg-emerald-950/40 px-2.5 py-1 text-[11px] font-bold text-emerald-300 hover:bg-emerald-900 transition flex items-center gap-1"
+                                    title="Xác nhận đã thu tiền đơn này"
+                                  >
+                                    <Check size={12} />
+                                    <span>Đã thu tiền</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    disabled={updatingOrderId === ord.id}
+                                    onClick={() => handleUpdateOrderStatus(ord.id, "cancelled")}
+                                    className="rounded-lg border border-rose-500/50 bg-rose-950/40 px-2 py-1 text-[11px] font-bold text-rose-300 hover:bg-rose-900 transition flex items-center gap-1"
+                                    title="Hủy đơn hàng"
+                                  >
+                                    <Ban size={12} />
+                                    <span>Hủy</span>
+                                  </button>
+                                </div>
+                              ) : ord.payment_status === "paid" ? (
+                                <span className="text-[11px] text-emerald-400 font-semibold">
+                                  ✓ Thành công
+                                </span>
+                              ) : (
+                                <span className="text-[11px] text-rose-400 font-semibold">
+                                  Đã hủy
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* ======================================================== */}
+        {/* TAB 2: QUẢN LÝ SẢN PHẨM (CRUD HOÀN CHỈNH) */}
         {/* ======================================================== */}
         {activeTab === "products" && (
           <div className="rounded-3xl border border-[var(--gold)]/30 bg-black/40 p-6 space-y-5">
@@ -1020,41 +1699,150 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Ảnh sản phẩm */}
-              <div>
-                <label className="block font-bold text-stone-300 mb-1">
-                  Đường dẫn ảnh đại diện
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={productForm.image || ""}
-                    onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
-                    placeholder="/images/..."
-                    className="flex-1 rounded-xl border border-[var(--gold)]/40 bg-black/60 px-3 py-2 text-white font-mono focus:border-[var(--gold)] outline-none text-[11px]"
-                  />
-                  {productForm.image && (
-                    <div className="h-10 w-10 rounded-lg overflow-hidden bg-black shrink-0 border border-[var(--gold)]">
-                      <img src={productForm.image} alt="" className="h-full w-full object-cover" />
+              {/* Ảnh sản phẩm & Tải lên Cloudinary */}
+              <div className="space-y-3 rounded-2xl border border-[var(--gold)]/30 bg-black/40 p-4">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-[var(--gold-light)] uppercase tracking-wider text-[11px] flex items-center gap-1.5">
+                    <ImageIcon size={14} className="text-[var(--gold)]" />
+                    <span>Hình ảnh sản phẩm (Cloudinary / CDN)</span>
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setShowCloudinaryConfig(!showCloudinaryConfig)}
+                    className="text-[10px] text-stone-400 hover:text-[var(--gold)] transition flex items-center gap-1"
+                  >
+                    <Settings size={11} />
+                    <span>{showCloudinaryConfig ? "Đóng cài đặt" : "Cấu hình Cloudinary"}</span>
+                  </button>
+                </div>
+
+                {/* Form cấu hình nhanh Cloudinary nếu admin chưa cài đặt trong .env */}
+                {showCloudinaryConfig && (
+                  <div className="rounded-xl border border-amber-500/40 bg-amber-950/30 p-3 space-y-2 text-[11px] animate-in fade-in">
+                    <p className="font-bold text-amber-300">
+                      ⚙️ Cấu hình Cloudinary (Dự phòng nếu chưa lưu trong .env.local):
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        value={cldConfig.cloudName}
+                        onChange={(e) => setCldConfig({ ...cldConfig, cloudName: e.target.value })}
+                        placeholder="Cloud Name (VD: dxyz123)"
+                        className="rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-white outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={cldConfig.uploadPreset}
+                        onChange={(e) => setCldConfig({ ...cldConfig, uploadPreset: e.target.value })}
+                        placeholder="Upload Preset (VD: ml_default)"
+                        className="rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-white outline-none"
+                      />
+                      <input
+                        type="text"
+                        value={cldConfig.apiKey}
+                        onChange={(e) => setCldConfig({ ...cldConfig, apiKey: e.target.value })}
+                        placeholder="API Key (tùy chọn)"
+                        className="rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-white outline-none"
+                      />
+                      <input
+                        type="password"
+                        value={cldConfig.apiSecret}
+                        onChange={(e) => setCldConfig({ ...cldConfig, apiSecret: e.target.value })}
+                        placeholder="API Secret (tùy chọn)"
+                        className="rounded-lg border border-white/20 bg-black/60 px-2.5 py-1 text-white outline-none"
+                      />
                     </div>
+                  </div>
+                )}
+
+                {/* Nút bấm tải ảnh trực tiếp lên Cloudinary */}
+                <label className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed p-4 text-center cursor-pointer transition ${
+                  isUploadingImage
+                    ? "border-[var(--gold)] bg-[var(--gold)]/10 opacity-70"
+                    : "border-[var(--gold)]/50 bg-black/50 hover:border-[var(--gold)] hover:bg-black/70"
+                }`}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    disabled={isUploadingImage}
+                    className="hidden"
+                  />
+                  {isUploadingImage ? (
+                    <div className="flex items-center gap-2 text-stone-200">
+                      <Loader2 className="h-5 w-5 animate-spin text-[var(--gold)]" />
+                      <span className="font-bold text-xs">Đang tải ảnh lên Cloudinary...</span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--gold)]/20 text-[var(--gold)]">
+                        <UploadCloud size={20} />
+                      </div>
+                      <p className="font-bold text-xs text-white">
+                        Nhấn để chọn và tải ảnh lên Cloudinary
+                      </p>
+                      <p className="text-[10px] text-stone-400">
+                        Hỗ trợ ảnh PNG, JPG, JPEG, WebP. Tự động tối ưu hóa và gán vào sản phẩm.
+                      </p>
+                    </>
+                  )}
+                </label>
+
+                {uploadError && (
+                  <div className="rounded-xl border border-rose-500/50 bg-rose-950/60 p-2.5 text-[11px] text-rose-300 flex items-center justify-between">
+                    <span>{uploadError}</span>
+                    <button
+                      type="button"
+                      onClick={() => setShowCloudinaryConfig(true)}
+                      className="underline text-[var(--gold-light)] font-bold ml-2 shrink-0"
+                    >
+                      Nhập Cloud Name
+                    </button>
+                  </div>
+                )}
+
+                {/* Ô hiển thị và chỉnh sửa đường dẫn URL ảnh */}
+                <div>
+                  <div className="flex gap-2 items-center">
+                    <input
+                      type="text"
+                      value={productForm.image || ""}
+                      onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                      placeholder="https://res.cloudinary.com/... hoặc /images/..."
+                      className="flex-1 rounded-xl border border-[var(--gold)]/40 bg-black/60 px-3 py-2 text-white font-mono focus:border-[var(--gold)] outline-none text-[11px]"
+                    />
+                    {productForm.image && (
+                      <div className="relative h-12 w-12 rounded-lg overflow-hidden bg-black shrink-0 border border-[var(--gold)] shadow">
+                        <img src={productForm.image} alt="Preview" className="h-full w-full object-cover" />
+                      </div>
+                    )}
+                  </div>
+                  {productForm.image && productForm.image.includes("cloudinary.com") && (
+                    <span className="mt-1 inline-block text-[10px] text-emerald-400 font-bold">
+                      ✓ Đã lưu trữ trên Cloudinary CDN
+                    </span>
                   )}
                 </div>
 
-                {/* Danh sách ảnh thật chọn nhanh */}
-                <div className="mt-2 flex items-center gap-1.5 overflow-x-auto pb-1">
-                  <span className="text-[10px] text-stone-400 shrink-0">Chọn nhanh ảnh:</span>
-                  {availableImages.slice(0, 6).map((imgUrl, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      onClick={() => setProductForm({ ...productForm, image: imgUrl })}
-                      className={`h-8 w-8 rounded-lg overflow-hidden shrink-0 border transition ${
-                        productForm.image === imgUrl ? "border-[var(--gold)] ring-2 ring-[var(--gold)]" : "border-white/20 opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <img src={imgUrl} alt="" className="h-full w-full object-cover" />
-                    </button>
-                  ))}
+                {/* Danh sách ảnh thật có sẵn để chọn nhanh */}
+                <div className="pt-1">
+                  <span className="text-[10px] text-stone-400 block mb-1">Hoặc chọn nhanh từ thư viện có sẵn:</span>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                    {availableImages.slice(0, 8).map((imgUrl, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => setProductForm({ ...productForm, image: imgUrl })}
+                        className={`h-9 w-9 rounded-lg overflow-hidden shrink-0 border transition ${
+                          productForm.image === imgUrl
+                            ? "border-[var(--gold)] ring-2 ring-[var(--gold)]"
+                            : "border-white/20 opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={imgUrl} alt="" className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
 

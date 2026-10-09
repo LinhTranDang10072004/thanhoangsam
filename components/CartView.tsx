@@ -14,10 +14,14 @@ import {
   ArrowLeft,
   PhoneCall,
   Clock,
+  Lock,
+  LogIn,
+  UserCheck,
 } from "lucide-react";
 import { vnd } from "@/lib/data";
 import { site } from "@/lib/site";
 import { useCart } from "./CartProvider";
+import { useAuth } from "./AuthProvider";
 
 const payments = [
   {
@@ -51,6 +55,7 @@ const empty: Form = { name: "", phone: "", address: "", note: "", payment: "viet
 
 export default function CartView() {
   const { lines, total, setQty, remove, clear } = useCart();
+  const { user, profile, loading: authLoading } = useAuth();
   const [form, setForm] = useState<Form>(empty);
   const [errors, setErrors] = useState<Partial<Form>>({});
   
@@ -63,6 +68,18 @@ export default function CartView() {
   const [isPaid, setIsPaid] = useState(false);
   const [pollingError, setPollingError] = useState<string | null>(null);
   
+  // Tự động điền thông tin người dùng khi đã đăng nhập
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || profile?.full_name || (user.user_metadata?.full_name as string) || (user.email ? user.email.split("@")[0] : ""),
+        phone: prev.phone || profile?.phone || (user.user_metadata?.phone as string) || "",
+        address: prev.address || profile?.address || "",
+      }));
+    }
+  }, [user, profile]);
+
   // State copy clipboard
   const [copiedField, setCopiedField] = useState<string | null>(null);
   const [copiedSummary, setCopiedSummary] = useState(false);
@@ -111,6 +128,11 @@ export default function CartView() {
   // 2. Submit đặt hàng
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (!user) {
+      setPollingError("Quý khách vui lòng đăng nhập tài khoản trước khi tiến hành đặt sâm.");
+      return;
+    }
+
     const next: Partial<Form> = {};
     if (form.name.trim().length < 2) next.name = "Vui lòng nhập họ và tên.";
     if (!/^0\d{9}$/.test(form.phone.replace(/\s/g, ""))) {
@@ -180,6 +202,32 @@ export default function CartView() {
     ]
       .filter(Boolean)
       .join("\n");
+
+    // Lưu đơn COD vào cơ sở dữ liệu Supabase để Admin quản lý
+    try {
+      await fetch("/api/payment/create-cod-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: total,
+          customer: {
+            name: form.name.trim(),
+            phone: form.phone.trim(),
+            address: form.address.trim(),
+          },
+          note: form.note.trim(),
+          items: lines.map((l) => ({
+            name: l.product.name,
+            variant: l.variant,
+            qty: l.qty,
+            price: l.unit,
+            total: l.total,
+          })),
+        }),
+      });
+    } catch (saveCodErr) {
+      console.warn("Không thể lưu đơn COD vào database:", saveCodErr);
+    }
 
     setCodOrder({ ...form, id, total, summary });
     clear();
@@ -501,7 +549,57 @@ export default function CartView() {
 
           {/* Cột Form thanh toán */}
           <form onSubmit={submit} className="card space-y-4 p-6 shadow-lg" noValidate>
-            <h2 className="text-2xl font-extrabold text-[var(--red)] border-b pb-2">Thông tin nhận hàng</h2>
+            <div className="flex items-center justify-between border-b pb-2">
+              <h2 className="text-2xl font-extrabold text-[var(--red)]">Thông tin nhận hàng</h2>
+              {user && (
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-bold text-emerald-800 border border-emerald-300">
+                  {profile?.role === "admin" ? "Admin" : "Đã đăng nhập"}
+                </span>
+              )}
+            </div>
+
+            {/* Cảnh báo yêu cầu đăng nhập nếu khách chưa đăng nhập */}
+            {!user && !authLoading && (
+              <div className="rounded-2xl border-2 border-amber-500/80 bg-gradient-to-r from-amber-950/70 via-amber-900/40 to-black p-4 text-white shadow space-y-2.5">
+                <div className="flex items-center gap-2 text-amber-300 font-bold text-sm sm:text-base">
+                  <Lock className="h-5 w-5 shrink-0 text-amber-400" />
+                  <span>Yêu cầu đăng nhập để mua hàng</span>
+                </div>
+                <p className="text-xs text-stone-300 leading-relaxed">
+                  Để đảm bảo quyền lợi tích điểm, bảo hành nguồn gốc sâm và quản lý lịch sử đơn hàng, quý khách vui lòng đăng nhập trước khi tiến hành thanh toán.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Link
+                    href="/dang-nhap?next=/gio-hang"
+                    className="btn-gold !py-2 !px-4 text-xs font-bold flex items-center gap-1.5 shadow"
+                  >
+                    <LogIn className="h-3.5 w-3.5" />
+                    <span>Đăng nhập tài khoản</span>
+                  </Link>
+                  <Link
+                    href="/dang-ky?next=/gio-hang"
+                    className="rounded-xl border border-[var(--gold)]/50 bg-black/40 px-3.5 py-2 text-xs font-bold text-[var(--gold-light)] hover:bg-[var(--gold)] hover:text-[#2b0508] transition"
+                  >
+                    Chưa có tài khoản? Đăng ký
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            {/* Hiển thị tài khoản đang đăng nhập */}
+            {user && (
+              <div className="rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-3 text-xs text-emerald-200 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 font-bold text-[10px] border border-emerald-400/40">
+                    ✓
+                  </span>
+                  <span>
+                    Đang đặt hàng với: <b className="text-white">{profile?.full_name || user.email}</b>
+                  </span>
+                </div>
+                <UserCheck size={16} className="text-emerald-400 shrink-0" />
+              </div>
+            )}
 
             {pollingError && (
               <div className="rounded-xl border border-rose-300 bg-rose-50 p-3 text-xs text-rose-700 font-medium">
@@ -608,25 +706,35 @@ export default function CartView() {
               </p>
             </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="btn-gold btn-block !py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition"
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Đang kết nối cổng thanh toán...</span>
-                </>
-              ) : form.payment === "vietqr" ? (
-                <>
-                  <QrCode className="h-5 w-5" />
-                  <span>Tạo mã QR & Thanh toán ngay</span>
-                </>
-              ) : (
-                <span>Đặt hàng nhận tiền mặt (COD)</span>
-              )}
-            </button>
+            {!user && !authLoading ? (
+              <Link
+                href="/dang-nhap?next=/gio-hang"
+                className="btn-gold btn-block !py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition"
+              >
+                <Lock className="h-4 w-4" />
+                <span>Đăng nhập để đặt hàng</span>
+              </Link>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="btn-gold btn-block !py-3.5 text-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:scale-[1.01] transition"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Đang kết nối cổng thanh toán...</span>
+                  </>
+                ) : form.payment === "vietqr" ? (
+                  <>
+                    <QrCode className="h-5 w-5" />
+                    <span>Tạo mã QR & Thanh toán ngay</span>
+                  </>
+                ) : (
+                  <span>Đặt hàng nhận tiền mặt (COD)</span>
+                )}
+              </button>
+            )}
           </form>
         </div>
       )}
